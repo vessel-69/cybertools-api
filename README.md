@@ -4,11 +4,11 @@ A free, public utility API for common security and developer tasks — hashing, 
 
 Built with [FastAPI](https://fastapi.tiangolo.com/) for the [RaspAPI](https://raspapi.hackclub.com/) Hack Club YSWS.
 
-## Live URL
+## Live URL:
 
 > https://cybertools-api.fly.dev
 
-Interactive docs: 
+## Interactive docs: 
 
 > https://cybertools-api.fly.dev/docs
 
@@ -109,17 +109,3 @@ uvicorn main:app --reload --port 8000
 Then open: `http://localhost:8000/docs`
 
 ---
-
-## Hosting
-
-Recommended options:
-- **[Fly.io](https://fly.io)** — Free tier, easiest deployment
-- **Cloudflare Tunnel** — Self-hosted on your machine/Pi, free
-
-See the [RaspAPI hosting guides](https://raspapi.hackclub.com/guides) for step-by-step instructions.
-
----
-
-## License
-
-MIT
