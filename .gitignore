@@ -1,0 +1,19 @@
+# Virtual Environment 
+venv/
+.venv/
+env/
+
+# Python Cache 
+__pycache__/
+*.pyc
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment variables 
+.env
+
+# Deployment specific
+fly.toml
+Dockerfile
