@@ -93,7 +93,7 @@ def analyze_password(pw: str) -> dict:
     else:
         strength = "Very Weak"
 
-    entropy_bits = round(len(pw) * 6.55, 1)  # rough estimate
+    entropy_bits = round(len(pw) * 6.55, 1) 
 
     return {
         "strength": strength,
@@ -135,7 +135,7 @@ def root():
             <li><code>POST /encode</code> — Encode text (body)</li>
             <li><code>POST /password/analyze</code> — Analyze password strength</li>
         </ul>
-        <p>Source: <a href="https://github.com/YOUR_USERNAME/cybertools-api">GitHub</a></p>
+        <p>Source: <a href="https://github.com/vessel-69/cybertools-api">GitHub</a></p>
     </body>
     </html>
     """
