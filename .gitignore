@@ -1,19 +1,42 @@
-# Virtual Environment 
+# --- Python / Virtual Environment ---
+
 venv/
 .venv/
 env/
-
-# Python Cache 
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+*.tslog
 
-# OS-specific files
-.DS_Store
-Thumbs.db
+# --- Environment Variables ---
 
-# Environment variables 
 .env
+.venv
+env.local
+.env.secret
 
-# Deployment specific
-fly.toml
-Dockerfile
+# --- Docker & Fly.io ---
+
+.dockerignore
+*.log
+.fly/
+
+# --- OS Specific ---
+
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# --- Editor Specific ---
+
+.vscode/
+.idea/
+*.swp
+*.swo
