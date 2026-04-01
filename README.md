@@ -6,9 +6,9 @@ Built with [FastAPI](https://fastapi.tiangolo.com/) for the [RaspAPI](https://ra
 
 ## Live URL
 
-> `https://YOUR-DOMAIN-HERE`
+> `[https://cybertools-api.fly.dev]`
 
-Interactive docs: `https://YOUR-DOMAIN-HERE/docs`
+Interactive docs: `[https://cybertools-api.fly.dev/docs]`
 
 ---
 
