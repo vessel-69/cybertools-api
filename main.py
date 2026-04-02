@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
+from pathlib import Path
 from pydantic import BaseModel
 import hashlib
 import base64
@@ -18,46 +19,68 @@ app = FastAPI(
 )
 
 
-# -------- Models ----------------
+# ─── Models ────────────────────────────────────────────────────────────────────
 
 
 class HashRequest(BaseModel):
     text: str
     algorithm: str = "sha256"
 
+
 class EncodeRequest(BaseModel):
     text: str
     method: str = "base64"  # base64 | hex | url
+
 
 class PasswordAnalysisRequest(BaseModel):
     password: str
 
 
-# ------- Helpers -------------
+# ─── Helpers ───────────────────────────────────────────────────────────────────
 
-HASH_ALGORITHMS = ["md5", "sha1", "sha256", "sha384", "sha512", "sha3_256", "sha3_512", "blake2b", "blake2s"]
+HASH_ALGORITHMS = [
+    "md5",
+    "sha1",
+    "sha256",
+    "sha384",
+    "sha512",
+    "sha3_256",
+    "sha3_512",
+    "blake2b",
+    "blake2s",
+]
+
 
 def analyze_password(pw: str) -> dict:
     score = 0
     feedback = []
 
     checks = {
-        "length_8":     len(pw) >= 8,
-        "length_12":    len(pw) >= 12,
-        "length_16":    len(pw) >= 16,
-        "has_upper":    bool(re.search(r"[A-Z]", pw)),
-        "has_lower":    bool(re.search(r"[a-z]", pw)),
-        "has_digit":    bool(re.search(r"\d", pw)),
-        "has_special":  bool(re.search(r"[^A-Za-z0-9]", pw)),
-        "no_spaces":    " " not in pw,
-        "no_repeat":    not bool(re.search(r"(.)\1{2,}", pw)),
-        "no_sequence":  not any(seq in pw.lower() for seq in ["123", "abc", "qwerty", "password", "admin"]),
+        "length_8": len(pw) >= 8,
+        "length_12": len(pw) >= 12,
+        "length_16": len(pw) >= 16,
+        "has_upper": bool(re.search(r"[A-Z]", pw)),
+        "has_lower": bool(re.search(r"[a-z]", pw)),
+        "has_digit": bool(re.search(r"\d", pw)),
+        "has_special": bool(re.search(r"[^A-Za-z0-9]", pw)),
+        "no_spaces": " " not in pw,
+        "no_repeat": not bool(re.search(r"(.)\1{2,}", pw)),
+        "no_sequence": not any(
+            seq in pw.lower() for seq in ["123", "abc", "qwerty", "password", "admin"]
+        ),
     }
 
     weights = {
-        "length_8": 1, "length_12": 1, "length_16": 1,
-        "has_upper": 1, "has_lower": 1, "has_digit": 1, "has_special": 2,
-        "no_spaces": 0, "no_repeat": 1, "no_sequence": 1,
+        "length_8": 1,
+        "length_12": 1,
+        "length_16": 1,
+        "has_upper": 1,
+        "has_lower": 1,
+        "has_digit": 1,
+        "has_special": 2,
+        "no_spaces": 0,
+        "no_repeat": 1,
+        "no_sequence": 1,
     }
 
     for check, passed in checks.items():
@@ -65,15 +88,15 @@ def analyze_password(pw: str) -> dict:
             score += weights.get(check, 1)
         else:
             tips = {
-                "length_8":    "Use at least 8 characters.",
-                "length_12":   "Use at least 12 characters for better security.",
-                "length_16":   "16+ characters is ideal for strong passwords.",
-                "has_upper":   "Add uppercase letters (A-Z).",
-                "has_lower":   "Add lowercase letters (a-z).",
-                "has_digit":   "Include numbers.",
+                "length_8": "Use at least 8 characters.",
+                "length_12": "Use at least 12 characters for better security.",
+                "length_16": "16+ characters is ideal for strong passwords.",
+                "has_upper": "Add uppercase letters (A-Z).",
+                "has_lower": "Add lowercase letters (a-z).",
+                "has_digit": "Include numbers.",
                 "has_special": "Use special characters like !@#$%^&*.",
-                "no_spaces":   "Avoid spaces.",
-                "no_repeat":   "Avoid repeating characters (e.g. 'aaa').",
+                "no_spaces": "Avoid spaces.",
+                "no_repeat": "Avoid repeating characters (e.g. 'aaa').",
                 "no_sequence": "Avoid common sequences like '123' or 'password'.",
             }
             if check in tips:
@@ -93,7 +116,7 @@ def analyze_password(pw: str) -> dict:
     else:
         strength = "Very Weak"
 
-    entropy_bits = round(len(pw) * 6.55, 1) 
+    entropy_bits = round(len(pw) * 6.55, 1)  # rough estimate
 
     return {
         "strength": strength,
@@ -105,50 +128,23 @@ def analyze_password(pw: str) -> dict:
     }
 
 
-# ------------- Routes --------------
+# ─── Routes ────────────────────────────────────────────────────────────────────
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def root():
-    return """
-    <html>
-    <head>
-        <title>CyberTools API</title>
-        <style>
-            body { font-family: monospace; background: #0d1117; color: #58a6ff; padding: 2rem; }
-            h1 { color: #f0f6fc; } a { color: #58a6ff; }
-            code { background: #161b22; padding: 2px 6px; border-radius: 4px; }
-            ul { line-height: 2; }
-        </style>
-    </head>
-    <body>
-        <h1>⚡ CyberTools API</h1>
-        <p>A free utility API for security and developer tasks.</p>
-        <ul>
-            <li><a href="/docs">/docs</a> — Interactive Swagger UI</li>
-            <li><code>GET /hash/{algorithm}/{text}</code> — Hash any string</li>
-            <li><code>GET /hash/algorithms</code> — List supported algorithms</li>
-            <li><code>GET /encode/{method}/{text}</code> — Encode text (base64/hex/url)</li>
-            <li><code>GET /decode/{method}/{text}</code> — Decode text</li>
-            <li><code>GET /ip/{ip}</code> — Get info about an IP address</li>
-            <li><code>POST /hash</code> — Hash text (body)</li>
-            <li><code>POST /encode</code> — Encode text (body)</li>
-            <li><code>POST /password/analyze</code> — Analyze password strength</li>
-        </ul>
-        <p>Source: <a href="https://github.com/vessel-69/cybertools-api">GitHub</a></p>
-    </body>
-    </html>
-    """
+    html_path = Path(__file__).parent / "ui.html"
+    return HTMLResponse(content=html_path.read_text())
 
-# ------------- GET: List hash algorithms --------------
 
+# ── GET: List hash algorithms
 @app.get("/hash/algorithms", tags=["Hashing"])
 def list_algorithms():
     """Returns all supported hashing algorithms."""
     return {"algorithms": HASH_ALGORITHMS}
 
-# ------------- GET: Hash text --------------
 
+# ── GET: Hash text
 @app.get("/hash/{algorithm}/{text}", tags=["Hashing"])
 def hash_text(algorithm: str, text: str):
     """
@@ -157,7 +153,10 @@ def hash_text(algorithm: str, text: str):
     """
     algorithm = algorithm.lower()
     if algorithm not in HASH_ALGORITHMS:
-        raise HTTPException(status_code=400, detail=f"Unsupported algorithm. Choose from: {HASH_ALGORITHMS}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported algorithm. Choose from: {HASH_ALGORITHMS}",
+        )
     h = hashlib.new(algorithm, text.encode()).hexdigest()
     return {
         "input": text,
@@ -166,8 +165,8 @@ def hash_text(algorithm: str, text: str):
         "length_bits": len(h) * 4,
     }
 
-# ------------- GET: Encode text --------------
 
+# ── GET: Encode text
 @app.get("/encode/{method}/{text}", tags=["Encoding"])
 def encode_text(method: str, text: str):
     """
@@ -180,13 +179,16 @@ def encode_text(method: str, text: str):
         result = text.encode().hex()
     elif method == "url":
         import urllib.parse
+
         result = urllib.parse.quote(text)
     else:
-        raise HTTPException(status_code=400, detail="Unsupported method. Use: base64, hex, url")
+        raise HTTPException(
+            status_code=400, detail="Unsupported method. Use: base64, hex, url"
+        )
     return {"input": text, "method": method, "encoded": result}
 
-# ------------- GET: Decode text --------------
 
+# ── GET: Decode text
 @app.get("/decode/{method}/{encoded}", tags=["Encoding"])
 def decode_text(method: str, encoded: str):
     """
@@ -200,15 +202,18 @@ def decode_text(method: str, encoded: str):
             result = bytes.fromhex(encoded).decode()
         elif method == "url":
             import urllib.parse
+
             result = urllib.parse.unquote(encoded)
         else:
-            raise HTTPException(status_code=400, detail="Unsupported method. Use: base64, hex, url")
+            raise HTTPException(
+                status_code=400, detail="Unsupported method. Use: base64, hex, url"
+            )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Decoding failed: {str(e)}")
     return {"encoded": encoded, "method": method, "decoded": result}
 
-# ------------- GET: IP info --------------
 
+# ── GET: IP info
 @app.get("/ip/{ip}", tags=["Network"])
 def ip_info(ip: str):
     """
@@ -232,23 +237,27 @@ def ip_info(ip: str):
         }
         if not addr.is_private:
             try:
-                with urllib.request.urlopen(f"https://ipinfo.io/{ip}/json", timeout=5) as res:
+                with urllib.request.urlopen(
+                    f"https://ipinfo.io/{ip}/json", timeout=5
+                ) as res:
                     geo = json.loads(res.read())
-                info.update({
-                    "org": geo.get("org"),
-                    "city": geo.get("city"),
-                    "region": geo.get("region"),
-                    "country": geo.get("country"),
-                    "timezone": geo.get("timezone"),
-                })
+                info.update(
+                    {
+                        "org": geo.get("org"),
+                        "city": geo.get("city"),
+                        "region": geo.get("region"),
+                        "country": geo.get("country"),
+                        "timezone": geo.get("timezone"),
+                    }
+                )
             except Exception:
                 info["geo"] = "unavailable"
         return info
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid IP address.")
 
-# ------------- GET: Timestamp utilities --------------
 
+# ── GET: Timestamp utilities
 @app.get("/time", tags=["Utilities"])
 def current_time():
     """Returns current UTC time in multiple formats."""
@@ -262,7 +271,8 @@ def current_time():
     }
 
 
-# --------- POST Routes ----------------------
+# ─── POST Routes ───────────────────────────────────────────────────────────────
+
 
 @app.post("/hash", tags=["Hashing"])
 def hash_text_body(body: HashRequest):
@@ -276,6 +286,7 @@ def hash_text_body(body: HashRequest):
     h = hashlib.new(alg, body.text.encode()).hexdigest()
     return {"input_length": len(body.text), "algorithm": alg, "hash": h}
 
+
 @app.post("/encode", tags=["Encoding"])
 def encode_text_body(body: EncodeRequest):
     """Encode text via POST. Methods: base64, hex, url"""
@@ -287,10 +298,12 @@ def encode_text_body(body: EncodeRequest):
         result = text.encode().hex()
     elif method == "url":
         import urllib.parse
+
         result = urllib.parse.quote(text)
     else:
         raise HTTPException(status_code=400, detail="Unsupported method.")
     return {"method": method, "encoded": result}
+
 
 @app.post("/password/analyze", tags=["Password"])
 def analyze_password_endpoint(body: PasswordAnalysisRequest):

@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberTools API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #080c10;
+        --surface: #0d1520;
+        --surface2: #111d2e;
+        --border: rgba(0, 210, 255, 0.12);
+        --border-hover: rgba(0, 210, 255, 0.35);
+        --cyan: #00d2ff;
+        --cyan-dim: rgba(0, 210, 255, 0.15);
+        --green: #00ff88;
+        --green-dim: rgba(0, 255, 136, 0.12);
+        --orange: #ff6b35;
+        --text: #e2eaf4;
+        --text-muted: #5a7a99;
+        --text-dim: #8aaccc;
+        --success: #00ff88;
+        --error: #ff4757;
+        --radius: 14px;
+        --radius-sm: 8px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "JetBrains Mono", monospace;
+        min-height: 100vh;
+        overflow-x: hidden;
+        cursor: default;
+      }
+
+      /* ── Background grid ── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── Glow orbs ── */
+      .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.18;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .orb-1 {
+        width: 500px;
+        height: 500px;
+        background: var(--cyan);
+        top: -150px;
+        right: -100px;
+        animation: drift 12s ease-in-out infinite alternate;
+      }
+      .orb-2 {
+        width: 400px;
+        height: 400px;
+        background: var(--green);
+        bottom: -100px;
+        left: -100px;
+        animation: drift 16s ease-in-out infinite alternate-reverse;
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate(0, 0);
+        }
+        to {
+          transform: translate(40px, 30px);
+        }
+      }
+
+      /* ── Layout ── */
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── Navbar ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(20px);
+        background: rgba(8, 12, 16, 0.85);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 0;
+      }
+      nav .inner {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo-link {
+        text-decoration: none;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--text);
+        letter-spacing: -0.3px;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--cyan), var(--green));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+      }
+      .nav-links {
+        display: flex;
+        gap: 8px;
+      }
+      .nav-link {
+        padding: 7px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .nav-link:hover {
+        color: var(--cyan);
+        border-color: var(--border);
+        background: var(--cyan-dim);
+      }
+      .nav-link.primary {
+        background: var(--cyan-dim);
+        border-color: var(--border-hover);
+        color: var(--cyan);
+      }
+      .nav-link.primary:hover {
+        background: rgba(0, 210, 255, 0.25);
+      }
+
+      /* ── Hero ── */
+      .hero {
+        padding: 80px 0 60px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        font-size: 0.7rem;
+        color: var(--cyan);
+        background: var(--cyan-dim);
+        margin-bottom: 28px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        animation: fadeUp 0.6s ease both;
+      }
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+        animation: pulse 2s ease infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      h1 {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(2.8rem, 6vw, 4.2rem);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -2px;
+        animation: fadeUp 0.6s 0.1s ease both;
+      }
+      h1 .accent {
+        color: var(--cyan);
+      }
+      h1 .accent2 {
+        color: var(--green);
+      }
+
+      .hero-sub {
+        margin-top: 20px;
+        font-size: 0.95rem;
+        color: var(--text-dim);
+        max-width: 500px;
+        line-height: 1.7;
+        font-weight: 300;
+        animation: fadeUp 0.6s 0.2s ease both;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+        animation: fadeUp 0.6s 0.3s ease both;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: var(--radius-sm);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+        letter-spacing: 0.5px;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--cyan), #0099cc);
+        color: #000;
+        font-weight: 500;
+        box-shadow: 0 0 30px rgba(0, 210, 255, 0.25);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 40px rgba(0, 210, 255, 0.4);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        border-color: var(--border-hover);
+        color: var(--text);
+        background: var(--surface);
+      }
+
+      /* ── Stats ── */
+      .stats {
+        display: flex;
+        gap: 32px;
+        margin-top: 56px;
+        padding: 24px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        animation: fadeUp 0.6s 0.4s ease both;
+        flex-wrap: wrap;
+      }
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .stat-num {
+        font-family: "Syne", sans-serif;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--cyan);
+      }
+      .stat-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      /* ── Section ── */
+      section {
+        padding: 60px 0;
+      }
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        margin-bottom: 28px;
+      }
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── Endpoint Cards ── */
+      .endpoint-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 12px;
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .endpoint-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: 0 4px 30px rgba(0, 210, 255, 0.06);
+      }
+      .endpoint-card.open {
+        border-color: var(--border-hover);
+      }
+
+      .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      .endpoint-header:hover {
+        background: rgba(0, 210, 255, 0.03);
+      }
+
+      .method-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        min-width: 48px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .get {
+        background: rgba(0, 210, 255, 0.15);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 210, 255, 0.3);
+      }
+      .post {
+        background: rgba(0, 255, 136, 0.12);
+        color: var(--green);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+      }
+
+      .endpoint-path {
+        font-size: 0.85rem;
+        color: var(--text);
+        flex: 1;
+      }
+      .endpoint-desc {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: none;
+      }
+
+      .expand-icon {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+      .endpoint-card.open .expand-icon {
+        transform: rotate(180deg);
+      }
+
+      /* ── Playground ── */
+      .playground {
+        padding: 0 20px 20px;
+        display: none;
+        border-top: 1px solid var(--border);
+        animation: slideDown 0.2s ease;
+      }
+      .endpoint-card.open .playground {
+        display: block;
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .playground-desc {
+        padding: 14px 0 16px;
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+      }
+
+      .field-group {
+        margin-bottom: 14px;
+      }
+      .field-label {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .field-input {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .field-input:focus {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.08);
+      }
+      .field-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      select.field-input {
+        cursor: pointer;
+      }
+
+      .run-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        background: var(--cyan-dim);
+        border: 1px solid var(--border-hover);
+        border-radius: var(--radius-sm);
+        color: var(--cyan);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .run-btn:hover {
+        background: rgba(0, 210, 255, 0.22);
+        transform: translateY(-1px);
+      }
+      .run-btn:active {
+        transform: translateY(0);
+      }
+      .run-btn.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .result-box {
+        margin-top: 14px;
+        background: #060a0e;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        display: none;
+      }
+      .result-box.show {
+        display: block;
+        animation: slideDown 0.2s ease;
+      }
+      .result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid var(--border);
+      }
+      .result-status {
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .result-status.ok {
+        color: var(--success);
+      }
+      .result-status.err {
+        color: var(--error);
+      }
+
+      .copy-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        cursor: pointer;
+        font-family: "JetBrains Mono", monospace;
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: color 0.2s;
+      }
+      .copy-btn:hover {
+        color: var(--cyan);
+      }
+
+      .result-body {
+        padding: 16px;
+        font-size: 0.78rem;
+        line-height: 1.7;
+        color: var(--text-dim);
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .result-body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .result-body::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .result-body::-webkit-scrollbar-thumb {
+        background: var(--border-hover);
+        border-radius: 2px;
+      }
+
+      /* JSON syntax highlighting */
+      .json-key {
+        color: var(--cyan);
+      }
+      .json-string {
+        color: #a8ff8a;
+      }
+      .json-number {
+        color: #ff9f43;
+      }
+      .json-bool {
+        color: #ff6b9d;
+      }
+      .json-null {
+        color: var(--text-muted);
+      }
+
+      /* ── Feature cards ── */
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--cyan),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .feature-card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 40px rgba(0, 210, 255, 0.08);
+      }
+      .feature-card:hover::before {
+        opacity: 1;
+      }
+
+      .feature-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 16px;
+      }
+      .icon-cyan {
+        background: var(--cyan-dim);
+        border: 1px solid rgba(0, 210, 255, 0.2);
+      }
+      .icon-green {
+        background: var(--green-dim);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+      }
+      .icon-orange {
+        background: rgba(255, 107, 53, 0.12);
+        border: 1px solid rgba(255, 107, 53, 0.2);
+      }
+
+      .feature-title {
+        font-family: "Syne", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+      .feature-desc {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+      }
+
+      /* ── Footer ── */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 32px 0;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        line-height: 1.8;
+      }
+      footer a {
+        color: var(--cyan);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── Animations ── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-up {
+        animation: fadeUp 0.5s ease both;
+      }
+
+      /* ── URL bar ── */
+      .url-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        font-size: 0.78rem;
+        color: var(--text-dim);
+      }
+      .url-bar .method-tag {
+        color: var(--cyan);
+        font-size: 0.7rem;
+      }
+      .url-bar .url-text {
+        flex: 1;
+        word-break: break-all;
+      }
+
+      /* ── Tab group ── */
+      .group-label {
+        font-family: "Syne", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 20px 0 10px;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          letter-spacing: -1px;
+        }
+        .stats {
+          gap: 20px;
+        }
+        .hero-actions {
+          flex-direction: column;
+        }
+        .btn {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <nav>
+      <div class="inner">
+        <a href="#" class="logo-link">
+        <div class="logo">
+          <div class="logo-icon">⚡</div>
+          CyberTools
+        </div>
+    </a>
+        <div class="nav-links">
+          <a href="#playground" class="nav-link">Playground</a>
+          <a href="#features" class="nav-link">Features</a>
+          <a href="/docs" class="nav-link primary">Swagger UI →</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="wrap">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          API v1.0 · Live
+        </div>
+        <h1>
+          Dev tools,<br />
+          <span class="accent">no bullshit.</span>
+        </h1>
+        <p class="hero-sub">
+          Hash strings, encode/decode data, analyze passwords and look up IPs —
+          all in one free API. No auth, no signup, no limits (almost).
+        </p>
+        <div class="hero-actions">
+          <a href="#playground" class="btn btn-primary">▶ Try it live</a>
+          <a
+            href="https://github.com/vessel-69/cybertools-api"
+            class="btn btn-ghost"
+            target="_blank"
+            >GitHub ↗</a
+          >
+        </div>
+
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-num">9</span>
+            <span class="stat-label">Endpoints</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">9</span>
+            <span class="stat-label">Hash Algorithms</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">0</span>
+            <span class="stat-label">Auth Required</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">Free to use</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Playground -->
+      <section id="playground">
+        <div class="section-label">Interactive Playground</div>
+
+        <div class="group-label">🔐 Hashing</div>
+
+        <!-- GET /hash/algorithms -->
+        <div class="endpoint-card" id="card-algos">
+          <div class="endpoint-header" onclick="toggle('card-algos')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/hash/algorithms</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >List all supported algorithms</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Returns a list of all cryptographic hashing algorithms supported
+              by this API.
+            </p>
+            <button
+              class="run-btn"
+              onclick="runRequest('card-algos', 'GET', '/hash/algorithms')"
+            >
+              ▶ Run Request
+            </button>
+            <div class="result-box" id="res-card-algos"></div>
+          </div>
+        </div>
+
+        <!-- GET /hash/{algo}/{text} -->
+        <div class="endpoint-card" id="card-hash">
+          <div class="endpoint-header" onclick="toggle('card-hash')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/hash/{algorithm}/{text}</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Hash any string</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Hash any string using your chosen algorithm. Great for checksums,
+              verifying integrity, or learning how hashing works.
+            </p>
+            <div class="field-group">
+              <label class="field-label">Algorithm</label>
+              <select class="field-input" id="hash-algo">
+                <option>sha256</option>
+                <option>sha512</option>
+                <option>md5</option>
+                <option>sha1</option>
+                <option>sha384</option>
+                <option>sha3_256</option>
+                <option>sha3_512</option>
+                <option>blake2b</option>
+                <option>blake2s</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Text to hash</label>
+              <input
+                class="field-input"
+                id="hash-text"
+                type="text"
+                placeholder="e.g. hello world"
+                value="hello world"
+              />
+            </div>
+            <button class="run-btn" onclick="runHash()">▶ Run Request</button>
+            <div class="result-box" id="res-card-hash"></div>
+          </div>
+        </div>
+
+        <div class="group-label">🔄 Encoding</div>
+
+        <!-- GET /encode -->
+        <div class="endpoint-card" id="card-encode">
+          <div class="endpoint-header" onclick="toggle('card-encode')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/encode/{method}/{text}</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Encode a string</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Encode any string using Base64, Hex, or URL encoding.
+            </p>
+            <div class="field-group">
+              <label class="field-label">Method</label>
+              <select class="field-input" id="enc-method">
+                <option>base64</option>
+                <option>hex</option>
+                <option>url</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Text</label>
+              <input
+                class="field-input"
+                id="enc-text"
+                type="text"
+                placeholder="e.g. hello world"
+                value="hello world"
+              />
+            </div>
+            <button class="run-btn" onclick="runEncode()">▶ Run Request</button>
+            <div class="result-box" id="res-card-encode"></div>
+          </div>
+        </div>
+
+        <!-- GET /decode -->
+        <div class="endpoint-card" id="card-decode">
+          <div class="endpoint-header" onclick="toggle('card-decode')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/decode/{method}/{encoded}</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Decode a string</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Decode a Base64, Hex, or URL-encoded string back to its original
+              form.
+            </p>
+            <div class="field-group">
+              <label class="field-label">Method</label>
+              <select class="field-input" id="dec-method">
+                <option>base64</option>
+                <option>hex</option>
+                <option>url</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Encoded text</label>
+              <input
+                class="field-input"
+                id="dec-text"
+                type="text"
+                placeholder="e.g. aGVsbG8gd29ybGQ="
+                value="aGVsbG8gd29ybGQ="
+              />
+            </div>
+            <button class="run-btn" onclick="runDecode()">▶ Run Request</button>
+            <div class="result-box" id="res-card-decode"></div>
+          </div>
+        </div>
+
+        <div class="group-label">🌐 Network</div>
+
+        <!-- GET /ip -->
+        <div class="endpoint-card" id="card-ip">
+          <div class="endpoint-header" onclick="toggle('card-ip')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/ip/{address}</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >IP info + geolocation</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Get info about any IPv4 or IPv6 address — location, org, timezone,
+              type. Pass <code style="color: var(--cyan)">me</code> to look up
+              your own IP.
+            </p>
+            <div class="field-group">
+              <label class="field-label">IP Address</label>
+              <input
+                class="field-input"
+                id="ip-addr"
+                type="text"
+                placeholder="e.g. 8.8.8.8 or me"
+                value="me"
+              />
+            </div>
+            <button class="run-btn" onclick="runIP()">▶ Run Request</button>
+            <div class="result-box" id="res-card-ip"></div>
+          </div>
+        </div>
+
+        <!-- GET /time -->
+        <div class="endpoint-card" id="card-time">
+          <div class="endpoint-header" onclick="toggle('card-time')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/time</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Current UTC time</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Returns the current UTC time in multiple formats: ISO, Unix
+              timestamp, Unix ms, date, and time.
+            </p>
+            <button
+              class="run-btn"
+              onclick="runRequest('card-time', 'GET', '/time')"
+            >
+              ▶ Run Request
+            </button>
+            <div class="result-box" id="res-card-time"></div>
+          </div>
+        </div>
+
+        <div class="group-label">🔑 Password</div>
+
+        <!-- POST /password/analyze -->
+        <div class="endpoint-card" id="card-pw">
+          <div class="endpoint-header" onclick="toggle('card-pw')">
+            <span class="method-badge post">POST</span>
+            <span class="endpoint-path">/password/analyze</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Analyze password strength</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Scores a password on 10 security checks and returns strength
+              label, entropy estimate, and actionable feedback.
+              <strong style="color: var(--orange)"
+                >⚠ Don't use a real password here.</strong
+              >
+            </p>
+            <div class="field-group">
+              <label class="field-label">Password to test</label>
+              <input
+                class="field-input"
+                id="pw-input"
+                type="text"
+                placeholder="e.g. H@ckClub2024!"
+                value="H@ckClub2024!"
+              />
+            </div>
+            <button class="run-btn" onclick="runPassword()">
+              ▶ Run Request
+            </button>
+            <div class="result-box" id="res-card-pw"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features">
+        <div class="section-label">What's inside</div>
+        <div class="feature-grid">
+          <div class="feature-card fade-up">
+            <div class="feature-icon icon-cyan">🔐</div>
+            <div class="feature-title">Cryptographic Hashing</div>
+            <div class="feature-desc">
+              9 algorithms including SHA-256, SHA-512, MD5, BLAKE2, and SHA-3
+              variants. Instant, no setup.
+            </div>
+          </div>
+          <div class="feature-card fade-up" style="animation-delay: 0.1s">
+            <div class="feature-icon icon-green">🔄</div>
+            <div class="feature-title">Encoding &amp; Decoding</div>
+            <div class="feature-desc">
+              Base64, Hex, and URL encoding in both directions. Essential for
+              web dev and security work.
+            </div>
+          </div>
+          <div class="feature-card fade-up" style="animation-delay: 0.2s">
+            <div class="feature-icon icon-cyan">🌐</div>
+            <div class="feature-title">IP Intelligence</div>
+            <div class="feature-desc">
+              Geolocation, org info, timezone, and type detection for any public
+              IPv4 or IPv6 address.
+            </div>
+          </div>
+          <div class="feature-card fade-up" style="animation-delay: 0.3s">
+            <div class="feature-icon icon-orange">🔑</div>
+            <div class="feature-title">Password Analysis</div>
+            <div class="feature-desc">
+              10-point security scoring with entropy estimation and specific,
+              actionable improvement tips.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <!--  -->
+      <!-- <div style="margin-top: 6px"> -->
+        <div>
+        Source on
+        <a
+          href="https://github.com/vessel-69/cybertools-api.git"
+          target="_blank"
+          >GitHub</a
+        >
+        · Full docs at <a href="/docs">/docs</a>
+      </div>
+    </footer>
+
+    <script>
+      // ── Toggle endpoint cards ──
+      function toggle(id) {
+        const card = document.getElementById(id);
+        card.classList.toggle("open");
+      }
+
+      // ── JSON syntax highlighter ──
+      function highlight(json) {
+        return json.replace(
+          /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+          (match) => {
+            if (/^"/.test(match)) {
+              return /:$/.test(match)
+                ? `<span class="json-key">${match}</span>`
+                : `<span class="json-string">${match}</span>`;
+            }
+            if (/true|false/.test(match))
+              return `<span class="json-bool">${match}</span>`;
+            if (/null/.test(match))
+              return `<span class="json-null">${match}</span>`;
+            return `<span class="json-number">${match}</span>`;
+          },
+        );
+      }
+
+      // ── Show result ──
+      function showResult(cardId, data, isError) {
+        const box = document.getElementById("res-" + cardId);
+        const json = JSON.stringify(data, null, 2);
+        box.className = "result-box show";
+        box.innerHTML = `
+      <div class="result-header">
+        <span class="result-status ${isError ? "err" : "ok"}">${isError ? "✗ Error" : "✓ 200 OK"}</span>
+        <button class="copy-btn" onclick="copyResult('${cardId}')">copy</button>
+      </div>
+      <div class="result-body" id="body-${cardId}">${highlight(json)}</div>
+    `;
+        box._raw = json;
+      }
+
+      function copyResult(cardId) {
+        const box = document.getElementById("res-" + cardId);
+        navigator.clipboard.writeText(box._raw || "").then(() => {
+          const btn = box.querySelector(".copy-btn");
+          btn.textContent = "copied!";
+          setTimeout(() => (btn.textContent = "copy"), 1500);
+        });
+      }
+
+      // ── Generic GET ──
+      async function runRequest(cardId, method, path) {
+        const btn = document.querySelector(`#${cardId} .run-btn`);
+        btn.textContent = "⏳ Fetching...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(path);
+          const data = await res.json();
+          showResult(cardId, data, !res.ok);
+        } catch (e) {
+          showResult(cardId, { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Hash ──
+      async function runHash() {
+        const algo = document.getElementById("hash-algo").value;
+        const text = document.getElementById("hash-text").value;
+        if (!text.trim()) return;
+        const btn = document.querySelector("#card-hash .run-btn");
+        btn.textContent = "⏳ Hashing...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(`/hash/${algo}/${encodeURIComponent(text)}`);
+          const data = await res.json();
+          showResult("card-hash", data, !res.ok);
+        } catch (e) {
+          showResult("card-hash", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Encode ──
+      async function runEncode() {
+        const method = document.getElementById("enc-method").value;
+        const text = document.getElementById("enc-text").value;
+        if (!text.trim()) return;
+        const btn = document.querySelector("#card-encode .run-btn");
+        btn.textContent = "⏳ Encoding...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(
+            `/encode/${method}/${encodeURIComponent(text)}`,
+          );
+          const data = await res.json();
+          showResult("card-encode", data, !res.ok);
+        } catch (e) {
+          showResult("card-encode", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Decode ──
+      async function runDecode() {
+        const method = document.getElementById("dec-method").value;
+        const text = document.getElementById("dec-text").value;
+        if (!text.trim()) return;
+        const btn = document.querySelector("#card-decode .run-btn");
+        btn.textContent = "⏳ Decoding...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(
+            `/decode/${method}/${encodeURIComponent(text)}`,
+          );
+          const data = await res.json();
+          showResult("card-decode", data, !res.ok);
+        } catch (e) {
+          showResult("card-decode", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── IP ──
+      async function runIP() {
+        const ip = document.getElementById("ip-addr").value || "me";
+        const btn = document.querySelector("#card-ip .run-btn");
+        btn.textContent = "⏳ Looking up...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(`/ip/${ip.trim()}`);
+          const data = await res.json();
+          showResult("card-ip", data, !res.ok);
+        } catch (e) {
+          showResult("card-ip", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Password ──
+      async function runPassword() {
+        const pw = document.getElementById("pw-input").value;
+        if (!pw) return;
+        const btn = document.querySelector("#card-pw .run-btn");
+        btn.textContent = "⏳ Analyzing...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch("/password/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: pw }),
+          });
+          const data = await res.json();
+          showResult("card-pw", data, !res.ok);
+        } catch (e) {
+          showResult("card-pw", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Intersection observer for fade-up ──
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.style.animationPlayState = "running";
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll(".fade-up").forEach((el) => {
+        el.style.animationPlayState = "paused";
+        obs.observe(el);
+      });
+    </script>
+  </body>
+</html>
