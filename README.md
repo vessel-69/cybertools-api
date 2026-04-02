@@ -23,6 +23,7 @@ Securely hash strings using multiple industry-standard algorithms.
 
 - **Supported:** `md5`, `sha1`, `sha256`, `sha512`, `blake2b`, and more.
 - **How to use:** 
+
   - **GET:** `/hash/{algorithm}/{text}`
   - **POST:** Send a JSON body to `/hash` with `{"text": "your_string", "algorithm": "sha256"}`.
 
@@ -32,6 +33,7 @@ Convert data between different formats for web and binary tasks.
 
 - **Methods:** `base64`, `hex`, `url`.
 - **How to use:** 
+
   - **Encode:** `GET /encode/base64/hello` → returns `aGVsbG8=`.
   - **Decode:** `GET /decode/base64/aGVsbG8=` → returns `hello`.
 
@@ -41,6 +43,7 @@ Don't just check length—analyze the actual security of a password.
 
 - **Features:** Entropy estimation, character variety checks, and actionable feedback.
 - **How to use:**
+
   - **POST:** `/password/analyze` with `{"password": "your_password"}`.
   - **Response:** Returns a strength label (e.g., "Strong") and a list of tips to improve it.
 
@@ -49,6 +52,7 @@ Don't just check length—analyze the actual security of a password.
 Quickly identify IP properties and geolocation data.
 
 - **How to use:**
+
   - **Check any IP:** `GET /ip/8.8.8.8`.
   - **Check yourself:** `GET /ip/me` to see your current public IP and origin.
 
