@@ -10,6 +10,16 @@
       rel="stylesheet"
     />
     <style>
+      *::selection {
+        background-color: rgba(255, 255, 0, 0.3);
+        color: inherit;
+      }
+
+      *::-moz-selection {
+        background-color: rgba(255, 255, 0, 0.3);
+        color: inherit;
+      }
+
       *,
       *::before,
       *::after {
@@ -750,11 +760,11 @@
     <nav>
       <div class="inner">
         <a href="#" class="logo-link">
-        <div class="logo">
-          <div class="logo-icon">⚡</div>
-          CyberTools
-        </div>
-    </a>
+          <div class="logo">
+            <div class="logo-icon">⚡</div>
+            CyberTools
+          </div>
+        </a>
         <div class="nav-links">
           <a href="#playground" class="nav-link">Playground</a>
           <a href="#features" class="nav-link">Features</a>
@@ -1099,7 +1109,7 @@
     <footer>
       <!--  -->
       <!-- <div style="margin-top: 6px"> -->
-        <div>
+      <div>
         Source on
         <a
           href="https://github.com/vessel-69/cybertools-api.git"
