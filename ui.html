@@ -10,16 +10,6 @@
       rel="stylesheet"
     />
     <style>
-      *::selection {
-        background-color: rgba(255, 255, 0, 0.3);
-        color: inherit;
-      }
-
-      *::-moz-selection {
-        background-color: rgba(255, 255, 0, 0.3);
-        color: inherit;
-      }
-
       *,
       *::before,
       *::after {
@@ -136,10 +126,6 @@
         align-items: center;
         justify-content: space-between;
       }
-      .logo-link {
-        text-decoration: none;
-      }
-
       .logo {
         display: flex;
         align-items: center;
@@ -150,7 +136,6 @@
         color: var(--text);
         letter-spacing: -0.3px;
       }
-
       .logo-icon {
         width: 32px;
         height: 32px;
@@ -325,7 +310,7 @@
       }
 
       /* ── Section ── */
-      section {
+      #features {
         padding: 60px 0;
       }
       .section-label {
@@ -759,14 +744,13 @@
 
     <nav>
       <div class="inner">
-        <a href="#" class="logo-link">
-          <div class="logo">
-            <div class="logo-icon">⚡</div>
-            CyberTools
-          </div>
-        </a>
+        <div class="logo">
+          <div class="logo-icon">⚡</div>
+          CyberTools
+        </div>
         <div class="nav-links">
           <a href="#playground" class="nav-link">Playground</a>
+          <a href="#security" class="nav-link">Security</a>
           <a href="#features" class="nav-link">Features</a>
           <a href="/docs" class="nav-link primary">Swagger UI →</a>
         </div>
@@ -1066,6 +1050,134 @@
         </div>
       </section>
 
+      <!-- Security Tools -->
+      <section id="security">
+        <div class="group-label">🛡️ Security Tools</div>
+
+        <div class="endpoint-card" id="card-recon">
+          <div class="endpoint-header" onclick="toggle('card-recon')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/recon</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Domain recon — IP, headers, tech stack, security gaps</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Resolves IP, probes HTTP headers, detects technologies, identifies
+              missing security headers, and generates a plain-English
+              smart_summary.
+            </p>
+            <div class="field-group">
+              <label class="field-label">Domain</label>
+              <input
+                class="field-input"
+                id="recon-domain"
+                type="text"
+                placeholder="e.g. example.com"
+                value="example.com"
+              />
+            </div>
+            <button class="run-btn" onclick="runRecon()">▶ Run Recon</button>
+            <div class="result-box" id="res-card-recon"></div>
+          </div>
+        </div>
+
+        <div class="endpoint-card" id="card-analyze">
+          <div class="endpoint-header" onclick="toggle('card-analyze')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/analyze-url</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Follow redirects, detect misconfigurations</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Follows redirect chain, inspects final headers, flags misconfigs
+              like CORS wildcards, exposed server banners, and missing HSTS.
+            </p>
+            <div class="field-group">
+              <label class="field-label">URL</label>
+              <input
+                class="field-input"
+                id="analyze-url-input"
+                type="text"
+                placeholder="e.g. https://example.com"
+                value="https://example.com"
+              />
+            </div>
+            <button class="run-btn" onclick="runAnalyze()">
+              ▶ Analyze URL
+            </button>
+            <div class="result-box" id="res-card-analyze"></div>
+          </div>
+        </div>
+
+        <div class="endpoint-card" id="card-bb">
+          <div class="endpoint-header" onclick="toggle('card-bb')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/bb-scan</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Bug bounty recon — probe common sensitive paths</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Probes 25+ paths: /admin, /.env, /api/v1, /.git/config and more.
+              Returns non-404 hits and bug bounty hints.
+              <strong style="color: var(--orange)"
+                >Only test targets you have permission to test.</strong
+              >
+            </p>
+            <div class="field-group">
+              <label class="field-label">Target URL</label>
+              <input
+                class="field-input"
+                id="bb-url"
+                type="text"
+                placeholder="e.g. https://example.com"
+                value="https://example.com"
+              />
+            </div>
+            <button class="run-btn" onclick="runBBScan()">▶ Run BB Scan</button>
+            <div class="result-box" id="res-card-bb"></div>
+          </div>
+        </div>
+
+        <div class="endpoint-card" id="card-payloads">
+          <div class="endpoint-header" onclick="toggle('card-payloads')">
+            <span class="method-badge get">GET</span>
+            <span class="endpoint-path">/payloads</span>
+            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
+              >Categorized attack payloads for security testing</span
+            >
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="playground">
+            <p class="playground-desc">
+              Returns curated payloads for testing. Use only on systems you own
+              or have explicit permission to test.
+            </p>
+            <div class="field-group">
+              <label class="field-label">Payload Type</label>
+              <select class="field-input" id="payload-type">
+                <option value="xss">XSS — Cross-Site Scripting</option>
+                <option value="sqli">SQLi — SQL Injection</option>
+                <option value="lfi">LFI — Local File Inclusion</option>
+                <option value="ssrf">SSRF — Server-Side Request Forgery</option>
+              </select>
+            </div>
+            <button class="run-btn" onclick="runPayloads()">
+              ▶ Get Payloads
+            </button>
+            <div class="result-box" id="res-card-payloads"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- Features -->
       <section id="features">
         <div class="section-label">What's inside</div>
@@ -1107,12 +1219,10 @@
     </div>
 
     <footer>
-      <!--  -->
-      <!-- <div style="margin-top: 6px"> -->
-      <div>
+      <div style="margin-top: 6px">
         Source on
         <a
-          href="https://github.com/vessel-69/cybertools-api.git"
+          href="https://github.com/vessel-69/cybertools-api"
           target="_blank"
           >GitHub</a
         >
@@ -1283,6 +1393,81 @@
           showResult("card-pw", { error: e.message }, true);
         }
         btn.textContent = "▶ Run Request";
+        btn.classList.remove("loading");
+      }
+
+      // ── Recon ──
+      async function runRecon() {
+        const domain = document.getElementById("recon-domain").value.trim();
+        if (!domain) return;
+        const btn = document.querySelector("#card-recon .run-btn");
+        btn.textContent = "⏳ Scanning...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(
+            `/recon?domain=${encodeURIComponent(domain)}`,
+          );
+          const data = await res.json();
+          showResult("card-recon", data, !res.ok);
+        } catch (e) {
+          showResult("card-recon", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run Recon";
+        btn.classList.remove("loading");
+      }
+
+      // ── Analyze URL ──
+      async function runAnalyze() {
+        const url = document.getElementById("analyze-url-input").value.trim();
+        if (!url) return;
+        const btn = document.querySelector("#card-analyze .run-btn");
+        btn.textContent = "⏳ Analyzing...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(
+            `/analyze-url?url=${encodeURIComponent(url)}`,
+          );
+          const data = await res.json();
+          showResult("card-analyze", data, !res.ok);
+        } catch (e) {
+          showResult("card-analyze", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Analyze URL";
+        btn.classList.remove("loading");
+      }
+
+      // ── BB Scan ──
+      async function runBBScan() {
+        const url = document.getElementById("bb-url").value.trim();
+        if (!url) return;
+        const btn = document.querySelector("#card-bb .run-btn");
+        btn.textContent = "⏳ Probing paths...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(`/bb-scan?url=${encodeURIComponent(url)}`);
+          const data = await res.json();
+          showResult("card-bb", data, !res.ok);
+        } catch (e) {
+          showResult("card-bb", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Run BB Scan";
+        btn.classList.remove("loading");
+      }
+
+      // ── Payloads ──
+      async function runPayloads() {
+        const type = document.getElementById("payload-type").value;
+        const btn = document.querySelector("#card-payloads .run-btn");
+        btn.textContent = "⏳ Loading...";
+        btn.classList.add("loading");
+        try {
+          const res = await fetch(`/payloads?type=${type}`);
+          const data = await res.json();
+          showResult("card-payloads", data, !res.ok);
+        } catch (e) {
+          showResult("card-payloads", { error: e.message }, true);
+        }
+        btn.textContent = "▶ Get Payloads";
         btn.classList.remove("loading");
       }
 
