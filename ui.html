@@ -4,11 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CyberTools API</title>
-    <meta name="title" content="CyberTools API" />
-    <meta name="description" content="A free API for hashing, encoding, and network info. No auth, no limits." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -21,23 +19,20 @@
       }
 
       :root {
-        --bg: #080c10;
-        --surface: #0d1520;
-        --surface2: #111d2e;
-        --border: rgba(0, 210, 255, 0.12);
-        --border-hover: rgba(0, 210, 255, 0.35);
-        --cyan: #00d2ff;
-        --cyan-dim: rgba(0, 210, 255, 0.15);
-        --green: #00ff88;
-        --green-dim: rgba(0, 255, 136, 0.12);
-        --orange: #ff6b35;
-        --text: #e2eaf4;
-        --text-muted: #5a7a99;
-        --text-dim: #8aaccc;
-        --success: #00ff88;
-        --error: #ff4757;
-        --radius: 14px;
-        --radius-sm: 8px;
+        --bg: #080b0f;
+        --surface: #0c1117;
+        --surface2: #111820;
+        --border: rgba(130, 255, 80, 0.1);
+        --border-h: rgba(130, 255, 80, 0.3);
+        --lime: #82ff50;
+        --lime-dim: rgba(130, 255, 80, 0.08);
+        --lime-glow: rgba(130, 255, 80, 0.2);
+        --red: #ff3b3b;
+        --red-dim: rgba(255, 59, 59, 0.1);
+        --text: #d4e0cc;
+        --text-dim: #6a8060;
+        --text-muted: #3a4d30;
+        --radius: 10px;
       }
 
       html {
@@ -50,64 +45,35 @@
         font-family: "JetBrains Mono", monospace;
         min-height: 100vh;
         overflow-x: hidden;
-        cursor: default;
       }
 
-      /* ── Background grid ── */
+      /* Scanline overlay */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px
+        );
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      /* Grid bg */
       body::before {
         content: "";
         position: fixed;
         inset: 0;
         background-image:
-          linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+          linear-gradient(rgba(130, 255, 80, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(130, 255, 80, 0.02) 1px, transparent 1px);
+        background-size: 32px 32px;
         pointer-events: none;
         z-index: 0;
-      }
-
-      /* ── Glow orbs ── */
-      .orb {
-        position: fixed;
-        border-radius: 50%;
-        filter: blur(120px);
-        opacity: 0.18;
-        pointer-events: none;
-        z-index: 0;
-      }
-      .orb-1 {
-        width: 500px;
-        height: 500px;
-        background: var(--cyan);
-        top: -150px;
-        right: -100px;
-        animation: drift 12s ease-in-out infinite alternate;
-      }
-      .orb-2 {
-        width: 400px;
-        height: 400px;
-        background: var(--green);
-        bottom: -100px;
-        left: -100px;
-        animation: drift 16s ease-in-out infinite alternate-reverse;
-      }
-
-      @keyframes drift {
-        from {
-          transform: translate(0, 0);
-        }
-        to {
-          transform: translate(40px, 30px);
-        }
-      }
-
-      /* ── Layout ── */
-      .wrap {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 24px;
-        position: relative;
-        z-index: 1;
       }
 
       /* ── Navbar ── */
@@ -115,311 +81,340 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        backdrop-filter: blur(20px);
-        background: rgba(8, 12, 16, 0.85);
+        background: rgba(8, 11, 15, 0.92);
+        backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--border);
-        padding: 16px 0;
-      }
-      nav .inner {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 24px;
+        padding: 12px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
       .logo {
+        font-family: "Syne", sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--lime);
+        text-shadow: 0 0 20px var(--lime-glow);
         display: flex;
         align-items: center;
         gap: 10px;
-        font-family: "Syne", sans-serif;
-        font-weight: 800;
-        font-size: 1.1rem;
-        color: var(--text);
-        letter-spacing: -0.3px;
       }
-      .logo-icon {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, var(--cyan), var(--green));
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
-      }
-      .nav-links {
-        display: flex;
-        gap: 8px;
-      }
-      .nav-link {
-        padding: 7px 14px;
-        border-radius: var(--radius-sm);
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        text-decoration: none;
-        border: 1px solid transparent;
-        transition: all 0.2s;
-        letter-spacing: 0.5px;
-      }
-      .nav-link:hover {
-        color: var(--cyan);
-        border-color: var(--border);
-        background: var(--cyan-dim);
-      }
-      .nav-link.primary {
-        background: var(--cyan-dim);
-        border-color: var(--border-hover);
-        color: var(--cyan);
-      }
-      .nav-link.primary:hover {
-        background: rgba(0, 210, 255, 0.25);
-      }
-
-      /* ── Hero ── */
-      .hero {
-        padding: 80px 0 60px;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 14px;
-        border: 1px solid var(--border);
-        border-radius: 99px;
-        font-size: 0.7rem;
-        color: var(--cyan);
-        background: var(--cyan-dim);
-        margin-bottom: 28px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        animation: fadeUp 0.6s ease both;
-      }
-      .badge-dot {
-        width: 6px;
-        height: 6px;
+      .logo-dot {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 8px var(--green);
-        animation: pulse 2s ease infinite;
+        background: var(--lime);
+        box-shadow: 0 0 10px var(--lime);
+        animation: blink 2s step-end infinite;
       }
-      @keyframes pulse {
+      @keyframes blink {
         0%,
         100% {
           opacity: 1;
         }
         50% {
-          opacity: 0.4;
+          opacity: 0.2;
         }
       }
 
-      h1 {
-        font-family: "Syne", sans-serif;
-        font-size: clamp(2.8rem, 6vw, 4.2rem);
-        font-weight: 800;
-        line-height: 1.05;
-        letter-spacing: -2px;
-        animation: fadeUp 0.6s 0.1s ease both;
-      }
-      h1 .accent {
-        color: var(--cyan);
-      }
-      h1 .accent2 {
-        color: var(--green);
-      }
-
-      .hero-sub {
-        margin-top: 20px;
-        font-size: 0.95rem;
-        color: var(--text-dim);
-        max-width: 500px;
-        line-height: 1.7;
-        font-weight: 300;
-        animation: fadeUp 0.6s 0.2s ease both;
-      }
-
-      .hero-actions {
+      .nav-links {
         display: flex;
-        gap: 12px;
-        margin-top: 36px;
-        flex-wrap: wrap;
-        animation: fadeUp 0.6s 0.3s ease both;
+        gap: 6px;
       }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        border-radius: var(--radius-sm);
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.8rem;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
+      .nav-link {
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 0.68rem;
+        color: var(--text-dim);
         text-decoration: none;
-        letter-spacing: 0.5px;
-      }
-      .btn-primary {
-        background: linear-gradient(135deg, var(--cyan), #0099cc);
-        color: #000;
-        font-weight: 500;
-        box-shadow: 0 0 30px rgba(0, 210, 255, 0.25);
-      }
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 40px rgba(0, 210, 255, 0.4);
-      }
-      .btn-ghost {
-        background: transparent;
-        color: var(--text-dim);
-        border: 1px solid var(--border);
-      }
-      .btn-ghost:hover {
-        border-color: var(--border-hover);
-        color: var(--text);
-        background: var(--surface);
-      }
-
-      /* ── Stats ── */
-      .stats {
-        display: flex;
-        gap: 32px;
-        margin-top: 56px;
-        padding: 24px 0;
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-        animation: fadeUp 0.6s 0.4s ease both;
-        flex-wrap: wrap;
-      }
-      .stat-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .stat-num {
-        font-family: "Syne", sans-serif;
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--cyan);
-      }
-      .stat-label {
-        font-size: 0.7rem;
-        color: var(--text-muted);
+        border: 1px solid transparent;
         letter-spacing: 1px;
         text-transform: uppercase;
+        transition: all 0.15s;
+      }
+      .nav-link:hover {
+        color: var(--lime);
+        border-color: var(--border);
+        background: var(--lime-dim);
+      }
+      .nav-link.active {
+        color: var(--lime);
+        border-color: var(--border-h);
+        background: var(--lime-dim);
       }
 
-      /* ── Section ── */
-      #features {
-        padding: 60px 0;
+      /* ── App layout ── */
+      .app {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        min-height: calc(100vh - 49px);
+        position: relative;
+        z-index: 1;
       }
-      .section-label {
+
+      /* ── Left panel ── */
+      .left {
+        border-right: 1px solid var(--border);
+        padding: 24px 20px;
         display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: var(--text-muted);
-        margin-bottom: 28px;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: 49px;
+        height: calc(100vh - 49px);
+        overflow-y: auto;
       }
-      .section-label::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--border);
+      .left::-webkit-scrollbar {
+        width: 3px;
+      }
+      .left::-webkit-scrollbar-thumb {
+        background: var(--border-h);
+        border-radius: 2px;
       }
 
-      /* ── Endpoint Cards ── */
-      .endpoint-card {
-        background: var(--surface);
+      .panel-label {
+        font-size: 0.6rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
+
+      .target-input {
+        width: 100%;
+        background: var(--surface2);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        margin-bottom: 12px;
-        overflow: hidden;
+        padding: 10px 14px;
+        color: var(--lime);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        outline: none;
         transition:
           border-color 0.2s,
           box-shadow 0.2s;
+        caret-color: var(--lime);
       }
-      .endpoint-card:hover {
-        border-color: var(--border-hover);
-        box-shadow: 0 4px 30px rgba(0, 210, 255, 0.06);
+      .target-input:focus {
+        border-color: var(--border-h);
+        box-shadow:
+          0 0 0 3px var(--lime-dim),
+          0 0 20px var(--lime-dim);
       }
-      .endpoint-card.open {
-        border-color: var(--border-hover);
+      .target-input::placeholder {
+        color: var(--text-muted);
       }
 
-      .endpoint-header {
+      .btn-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .btn-full {
+        grid-column: 1 / -1;
+      }
+
+      .action-btn {
+        padding: 10px 8px;
+        border-radius: var(--radius);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        transition: all 0.15s;
         display: flex;
         align-items: center;
-        gap: 14px;
-        padding: 16px 20px;
-        cursor: pointer;
-        user-select: none;
-        transition: background 0.15s;
+        justify-content: center;
+        gap: 6px;
       }
-      .endpoint-header:hover {
-        background: rgba(0, 210, 255, 0.03);
+      .action-btn:hover {
+        border-color: var(--border-h);
+        color: var(--lime);
+        background: var(--lime-dim);
+        box-shadow: 0 0 12px var(--lime-dim);
+      }
+      .action-btn.primary {
+        background: var(--lime-dim);
+        border-color: var(--border-h);
+        color: var(--lime);
+      }
+      .action-btn.primary:hover {
+        background: rgba(130, 255, 80, 0.15);
+        box-shadow: 0 0 20px var(--lime-glow);
+      }
+      .action-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
       }
 
-      .method-badge {
-        padding: 4px 10px;
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+      }
+
+      /* Payload type select */
+      .select-input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px 12px;
+        color: var(--text-dim);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .select-input:focus {
+        border-color: var(--border-h);
+      }
+      .select-input option {
+        background: var(--surface2);
+      }
+
+      /* Chat input */
+      .chat-row {
+        display: flex;
+        gap: 6px;
+      }
+      .chat-input {
+        flex: 1;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px 12px;
+        color: var(--text);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .chat-input:focus {
+        border-color: var(--border-h);
+      }
+      .chat-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      /* Stat pills */
+      .stats {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        background: var(--surface2);
         border-radius: 6px;
-        font-size: 0.65rem;
-        font-weight: 600;
+        border: 1px solid var(--border);
+        font-size: 0.68rem;
+      }
+      .stat-key {
+        color: var(--text-muted);
         letter-spacing: 1px;
-        min-width: 48px;
+        text-transform: uppercase;
+      }
+      .stat-val {
+        color: var(--lime);
+        font-weight: 500;
+      }
+
+      /* ── Right panel ── */
+      .right {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+      }
+
+      /* ── Loading overlay ── */
+      .loading-box {
+        display: none;
+        background: var(--surface);
+        border: 1px solid var(--border-h);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 0 40px var(--lime-dim);
+      }
+      .loading-box.show {
+        display: block;
+      }
+      .loading-title {
+        font-family: "Syne", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--lime);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+      }
+      .loading-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .loading-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        transition: color 0.3s;
+      }
+      .loading-step.active {
+        color: var(--lime);
+      }
+      .loading-step.done {
+        color: var(--text-dim);
+      }
+      .step-icon {
+        width: 16px;
         text-align: center;
         flex-shrink: 0;
       }
-      .get {
-        background: rgba(0, 210, 255, 0.15);
-        color: var(--cyan);
-        border: 1px solid rgba(0, 210, 255, 0.3);
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
-      .post {
-        background: rgba(0, 255, 136, 0.12);
-        color: var(--green);
-        border: 1px solid rgba(0, 255, 136, 0.3);
+      .step-icon.spinning {
+        display: inline-block;
+        animation: spin 1s linear infinite;
       }
 
-      .endpoint-path {
-        font-size: 0.85rem;
-        color: var(--text);
-        flex: 1;
-      }
-      .endpoint-desc {
-        font-size: 0.75rem;
-        color: var(--text-muted);
+      /* ── Result panel ── */
+      .result-panel {
         display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .result-panel.show {
+        display: flex;
       }
 
-      .expand-icon {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        transition: transform 0.2s;
-        flex-shrink: 0;
+      .result-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        animation: fadeIn 0.3s ease;
       }
-      .endpoint-card.open .expand-icon {
-        transform: rotate(180deg);
-      }
-
-      /* ── Playground ── */
-      .playground {
-        padding: 0 20px 20px;
-        display: none;
-        border-top: 1px solid var(--border);
-        animation: slideDown 0.2s ease;
-      }
-      .endpoint-card.open .playground {
-        display: block;
-      }
-      @keyframes slideDown {
+      @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(-8px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
@@ -427,1067 +422,963 @@
         }
       }
 
-      .playground-desc {
-        padding: 14px 0 16px;
-        font-size: 0.78rem;
-        color: var(--text-dim);
-        line-height: 1.6;
-      }
-
-      .field-group {
-        margin-bottom: 14px;
-      }
-      .field-label {
-        display: block;
-        font-size: 0.68rem;
-        color: var(--text-muted);
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-      }
-      .field-input {
-        width: 100%;
-        padding: 10px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        color: var(--text);
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.82rem;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      .field-input:focus {
-        border-color: var(--cyan);
-        box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.08);
-      }
-      .field-input::placeholder {
-        color: var(--text-muted);
-      }
-
-      select.field-input {
-        cursor: pointer;
-      }
-
-      .run-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 22px;
-        background: var(--cyan-dim);
-        border: 1px solid var(--border-hover);
-        border-radius: var(--radius-sm);
-        color: var(--cyan);
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.78rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        letter-spacing: 0.5px;
-      }
-      .run-btn:hover {
-        background: rgba(0, 210, 255, 0.22);
-        transform: translateY(-1px);
-      }
-      .run-btn:active {
-        transform: translateY(0);
-      }
-      .run-btn.loading {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-
-      .result-box {
-        margin-top: 14px;
-        background: #060a0e;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-        display: none;
-      }
-      .result-box.show {
-        display: block;
-        animation: slideDown 0.2s ease;
-      }
-      .result-header {
+      .result-section-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 14px;
-        background: rgba(0, 0, 0, 0.3);
+        padding: 10px 16px;
+        background: rgba(130, 255, 80, 0.04);
         border-bottom: 1px solid var(--border);
-      }
-      .result-status {
         font-size: 0.68rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--lime);
+        cursor: pointer;
+        user-select: none;
+      }
+      .result-section-header:hover {
+        background: rgba(130, 255, 80, 0.07);
+      }
+      .collapse-icon {
+        transition: transform 0.2s;
+      }
+      .result-section.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+      }
+      .result-section.collapsed .result-section-body {
+        display: none;
+      }
+
+      .result-section-body {
+        padding: 16px;
+      }
+
+      /* Smart summary cards */
+      .summary-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .summary-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--surface2);
+        border-radius: 6px;
+        font-size: 0.78rem;
+        line-height: 1.5;
+        color: var(--text);
+        animation: fadeIn 0.3s ease both;
+      }
+      .summary-item .si-icon {
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .summary-item.warn {
+        border-left: 2px solid var(--red);
+      }
+      .summary-item.ok {
+        border-left: 2px solid var(--lime);
+      }
+
+      /* Next steps */
+      .steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 10px;
+        background: var(--surface2);
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.76rem;
+        line-height: 1.5;
+        color: var(--text-dim);
+        animation: fadeIn 0.3s ease both;
+        transition: border-color 0.2s;
+      }
+      .step-item:hover {
+        border-color: var(--border-h);
+        color: var(--text);
+      }
+      .step-num {
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: var(--lime);
+        min-width: 18px;
+        padding-top: 1px;
+      }
+
+      /* Key-value grid */
+      .kv-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 16px;
+        font-size: 0.76rem;
+      }
+      .kv-key {
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        white-space: nowrap;
+      }
+      .kv-val {
+        color: var(--text);
+        word-break: break-all;
+      }
+      .kv-val.good {
+        color: var(--lime);
+      }
+      .kv-val.bad {
+        color: var(--red);
+      }
+
+      /* Payload list */
+      .payload-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .payload-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 12px;
+        background: var(--surface2);
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        animation: fadeIn 0.3s ease both;
+      }
+      .payload-item:hover {
+        border-color: var(--border-h);
+        background: var(--lime-dim);
+      }
+      .payload-code {
+        color: var(--lime);
+        font-family: "JetBrains Mono", monospace;
+        flex: 1;
+      }
+      .payload-label {
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        white-space: nowrap;
+      }
+      .payload-copy {
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        flex-shrink: 0;
+      }
+      .payload-item:hover .payload-copy {
+        color: var(--lime);
+      }
+
+      /* Paths table */
+      .paths-table {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .path-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px;
+        background: var(--surface2);
+        border-radius: 5px;
+        font-size: 0.74rem;
+        animation: fadeIn 0.2s ease both;
+      }
+      .path-name {
+        flex: 1;
+        color: var(--text-dim);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .path-status {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+      .status-200 {
+        background: rgba(130, 255, 80, 0.1);
+        color: var(--lime);
+      }
+      .status-301 {
+        background: rgba(255, 200, 50, 0.1);
+        color: #ffc832;
+      }
+      .status-302 {
+        background: rgba(255, 200, 50, 0.1);
+        color: #ffc832;
+      }
+      .status-403 {
+        background: rgba(255, 59, 59, 0.1);
+        color: var(--red);
+      }
+      .status-500 {
+        background: rgba(255, 100, 50, 0.1);
+        color: #ff6432;
+      }
+
+      /* Raw JSON toggle */
+      .json-toggle {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        cursor: pointer;
         letter-spacing: 1px;
         text-transform: uppercase;
-      }
-      .result-status.ok {
-        color: var(--success);
-      }
-      .result-status.err {
-        color: var(--error);
-      }
-
-      .copy-btn {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 0.7rem;
-        cursor: pointer;
-        font-family: "JetBrains Mono", monospace;
         padding: 2px 6px;
         border-radius: 4px;
-        transition: color 0.2s;
+        border: 1px solid transparent;
+        transition: all 0.15s;
       }
-      .copy-btn:hover {
-        color: var(--cyan);
+      .json-toggle:hover {
+        border-color: var(--border);
+        color: var(--text-dim);
       }
-
-      .result-body {
-        padding: 16px;
-        font-size: 0.78rem;
-        line-height: 1.7;
+      .json-raw {
+        display: none;
+        margin-top: 12px;
+        background: #050709;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 0.72rem;
         color: var(--text-dim);
         white-space: pre-wrap;
         word-break: break-all;
         max-height: 300px;
         overflow-y: auto;
+        line-height: 1.6;
       }
-      .result-body::-webkit-scrollbar {
-        width: 4px;
+      .json-raw.show {
+        display: block;
+        animation: fadeIn 0.2s ease;
       }
-      .result-body::-webkit-scrollbar-track {
-        background: transparent;
+      .json-raw::-webkit-scrollbar {
+        width: 3px;
       }
-      .result-body::-webkit-scrollbar-thumb {
-        background: var(--border-hover);
+      .json-raw::-webkit-scrollbar-thumb {
+        background: var(--border-h);
         border-radius: 2px;
       }
 
-      /* JSON syntax highlighting */
-      .json-key {
-        color: var(--cyan);
-      }
-      .json-string {
-        color: #a8ff8a;
-      }
-      .json-number {
-        color: #ff9f43;
-      }
-      .json-bool {
-        color: #ff6b9d;
-      }
-      .json-null {
-        color: var(--text-muted);
-      }
-
-      /* ── Feature cards ── */
-      .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 16px;
-        margin-top: 8px;
-      }
-      .feature-card {
+      /* Copy toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 10px 18px;
         background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        transition: all 0.2s;
-        position: relative;
-        overflow: hidden;
-      }
-      .feature-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--cyan),
-          transparent
-        );
+        border: 1px solid var(--border-h);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        color: var(--lime);
+        box-shadow: 0 4px 20px var(--lime-dim);
+        z-index: 1000;
         opacity: 0;
-        transition: opacity 0.3s;
+        transform: translateY(8px);
+        transition: all 0.2s;
+        pointer-events: none;
       }
-      .feature-card:hover {
-        border-color: var(--border-hover);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 40px rgba(0, 210, 255, 0.08);
-      }
-      .feature-card:hover::before {
+      .toast.show {
         opacity: 1;
+        transform: translateY(0);
       }
 
-      .feature-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
+      /* Welcome state */
+      .welcome {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
-        margin-bottom: 16px;
-      }
-      .icon-cyan {
-        background: var(--cyan-dim);
-        border: 1px solid rgba(0, 210, 255, 0.2);
-      }
-      .icon-green {
-        background: var(--green-dim);
-        border: 1px solid rgba(0, 255, 136, 0.2);
-      }
-      .icon-orange {
-        background: rgba(255, 107, 53, 0.12);
-        border: 1px solid rgba(255, 107, 53, 0.2);
-      }
-
-      .feature-title {
-        font-family: "Syne", sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: var(--text);
-      }
-      .feature-desc {
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        line-height: 1.6;
-      }
-
-      /* ── Footer ── */
-      footer {
-        border-top: 1px solid var(--border);
-        padding: 32px 0;
+        min-height: 60vh;
+        gap: 16px;
+        color: var(--text-muted);
         text-align: center;
-        color: var(--text-muted);
-        font-size: 0.72rem;
-        line-height: 1.8;
       }
-      footer a {
-        color: var(--cyan);
-        text-decoration: none;
+      .welcome-icon {
+        font-size: 3rem;
+        opacity: 0.3;
       }
-      footer a:hover {
-        text-decoration: underline;
-      }
-
-      /* ── Animations ── */
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(16px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .fade-up {
-        animation: fadeUp 0.5s ease both;
-      }
-
-      /* ── URL bar ── */
-      .url-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 10px 14px;
-        margin-bottom: 12px;
-        font-size: 0.78rem;
-        color: var(--text-dim);
-      }
-      .url-bar .method-tag {
-        color: var(--cyan);
-        font-size: 0.7rem;
-      }
-      .url-bar .url-text {
-        flex: 1;
-        word-break: break-all;
-      }
-
-      /* ── Tab group ── */
-      .group-label {
+      .welcome-title {
         font-family: "Syne", sans-serif;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--text-muted);
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 3px;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        padding: 20px 0 10px;
+        color: var(--text-muted);
+      }
+      .welcome-sub {
+        font-size: 0.72rem;
+        line-height: 1.7;
+        max-width: 300px;
       }
 
-      @media (max-width: 600px) {
-        h1 {
-          letter-spacing: -1px;
+      /* Responsive */
+      @media (max-width: 700px) {
+        .app {
+          grid-template-columns: 1fr;
         }
-        .stats {
-          gap: 20px;
-        }
-        .hero-actions {
-          flex-direction: column;
-        }
-        .btn {
-          justify-content: center;
+        .left {
+          position: static;
+          height: auto;
         }
       }
     </style>
   </head>
   <body>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-
     <nav>
-      <a href="#" class="logo" style="text-decoration: none;">
-      <div class="inner">
-        <div class="logo">
-          <div class="logo-icon">⚡</div>
-          CyberTools
-        </div>
-      </a>
-        <div class="nav-links">
-          <a href="#playground" class="nav-link">Playground</a>
-          <a href="#security" class="nav-link">Security</a>
-          <a href="#features" class="nav-link">Features</a>
-          <a href="/docs" class="nav-link primary">Swagger UI →</a>
-        </div>
+      <div class="logo">
+        <span class="logo-dot"></span>
+        CyberTools
+      </div>
+      <div class="nav-links">
+        <a href="#recon" class="nav-link" onclick="focusInput()">Recon</a>
+        <a href="/docs" class="nav-link active">API Docs ↗</a>
       </div>
     </nav>
 
-    <div class="wrap">
-      <!-- Hero -->
-      <section class="hero">
-        <div class="badge">
-          <span class="badge-dot"></span>
-          API v1.0 · Live
+    <div class="app">
+      <!-- ── Left: Controls ── -->
+      <div class="left">
+        <div>
+          <div class="panel-label">Target</div>
+          <input
+            class="target-input"
+            id="target"
+            type="text"
+            placeholder="domain.com or https://..."
+            spellcheck="false"
+            onkeydown="if (event.key === 'Enter') runWorkflow();"
+          />
         </div>
-        <h1>
-          Dev tools,<br />
-          <span class="accent">no bullshit.</span>
-        </h1>
-        <p class="hero-sub">
-          Hash strings, encode/decode data, analyze passwords and look up IPs —
-          all in one free API. No auth, no signup, no limits (almost).
-        </p>
-        <div class="hero-actions">
-          <a href="#playground" class="btn btn-primary">▶ Try it live</a>
-          <a
-            href="https://github.com/vessel-69/cybertools-api"
-            class="btn btn-ghost"
-            target="_blank"
-            >GitHub ↗</a
+
+        <div>
+          <div class="panel-label" style="margin-bottom: 10px">Actions</div>
+          <div class="btn-grid">
+            <button class="action-btn primary btn-full" onclick="runWorkflow()">
+              ⚡ Full Workflow
+            </button>
+            <button class="action-btn" onclick="runRecon()">🔍 Recon</button>
+            <button class="action-btn" onclick="runAnalyze()">
+              🔗 Analyze URL
+            </button>
+            <button class="action-btn" onclick="runBBScan()">🎯 BB Scan</button>
+            <button class="action-btn" onclick="runLastScan()">
+              💾 Last Scan
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <div class="panel-label" style="margin-bottom: 8px">Payloads</div>
+          <select class="select-input" id="payload-type">
+            <option value="xss">XSS</option>
+            <option value="sqli">SQLi</option>
+            <option value="lfi">LFI</option>
+            <option value="ssrf">SSRF</option>
+          </select>
+          <button
+            class="action-btn"
+            style="margin-top: 8px; width: 100%"
+            onclick="runPayloads()"
           >
+            📋 Get Payloads
+          </button>
         </div>
 
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-num">9</span>
-            <span class="stat-label">Endpoints</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">9</span>
-            <span class="stat-label">Hash Algorithms</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">0</span>
-            <span class="stat-label">Auth Required</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">∞</span>
-            <span class="stat-label">Free to use</span>
-          </div>
-        </div>
-      </section>
+        <div class="divider"></div>
 
-      <!-- Playground -->
-      <section id="playground">
-        <div class="section-label">Interactive Playground</div>
-
-        <div class="group-label">🔐 Hashing</div>
-
-        <!-- GET /hash/algorithms -->
-        <div class="endpoint-card" id="card-algos">
-          <div class="endpoint-header" onclick="toggle('card-algos')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/hash/algorithms</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >List all supported algorithms</span
-            >
-            <span class="expand-icon">▼</span>
+        <div>
+          <div class="panel-label" style="margin-bottom: 8px">
+            Ask Assistant
           </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Returns a list of all cryptographic hashing algorithms supported
-              by this API.
-            </p>
+          <div class="chat-row">
+            <input
+              class="chat-input"
+              id="chat-q"
+              type="text"
+              placeholder="What should I test?"
+              onkeydown="if (event.key === 'Enter') runChat();"
+            />
             <button
-              class="run-btn"
-              onclick="runRequest('card-algos', 'GET', '/hash/algorithms')"
+              class="action-btn"
+              onclick="runChat()"
+              style="white-space: nowrap; padding: 8px 12px"
             >
-              ▶ Run Request
+              →
             </button>
-            <div class="result-box" id="res-card-algos"></div>
           </div>
         </div>
 
-        <!-- GET /hash/{algo}/{text} -->
-        <div class="endpoint-card" id="card-hash">
-          <div class="endpoint-header" onclick="toggle('card-hash')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/hash/{algorithm}/{text}</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Hash any string</span
-            >
-            <span class="expand-icon">▼</span>
+        <div class="divider"></div>
+
+        <div class="stats" id="stats-panel" style="display: none">
+          <div class="panel-label" style="margin-bottom: 4px">
+            Last Scan Stats
           </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Hash any string using your chosen algorithm. Great for checksums,
-              verifying integrity, or learning how hashing works.
-            </p>
-            <div class="field-group">
-              <label class="field-label">Algorithm</label>
-              <select class="field-input" id="hash-algo">
-                <option>sha256</option>
-                <option>sha512</option>
-                <option>md5</option>
-                <option>sha1</option>
-                <option>sha384</option>
-                <option>sha3_256</option>
-                <option>sha3_512</option>
-                <option>blake2b</option>
-                <option>blake2s</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Text to hash</label>
-              <input
-                class="field-input"
-                id="hash-text"
-                type="text"
-                placeholder="e.g. hello world"
-                value="hello world"
-              />
-            </div>
-            <button class="run-btn" onclick="runHash()">▶ Run Request</button>
-            <div class="result-box" id="res-card-hash"></div>
+          <div class="stat-row">
+            <span class="stat-key">Target</span
+            ><span class="stat-val" id="stat-target">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">IP</span
+            ><span class="stat-val" id="stat-ip">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">Status</span
+            ><span class="stat-val" id="stat-status">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">SSL</span
+            ><span class="stat-val" id="stat-ssl">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Output ── -->
+      <div class="right" id="output">
+        <!-- Welcome state -->
+        <div class="welcome" id="welcome">
+          <div class="welcome-icon">⚡</div>
+          <div class="welcome-title">CyberTools</div>
+          <div class="welcome-sub">
+            Enter a domain or URL on the left, then hit
+            <span style="color: var(--lime)">Full Workflow</span> to start
+            recon.
           </div>
         </div>
 
-        <div class="group-label">🔄 Encoding</div>
-
-        <!-- GET /encode -->
-        <div class="endpoint-card" id="card-encode">
-          <div class="endpoint-header" onclick="toggle('card-encode')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/encode/{method}/{text}</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Encode a string</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Encode any string using Base64, Hex, or URL encoding.
-            </p>
-            <div class="field-group">
-              <label class="field-label">Method</label>
-              <select class="field-input" id="enc-method">
-                <option>base64</option>
-                <option>hex</option>
-                <option>url</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Text</label>
-              <input
-                class="field-input"
-                id="enc-text"
-                type="text"
-                placeholder="e.g. hello world"
-                value="hello world"
-              />
-            </div>
-            <button class="run-btn" onclick="runEncode()">▶ Run Request</button>
-            <div class="result-box" id="res-card-encode"></div>
-          </div>
+        <!-- Loading -->
+        <div class="loading-box" id="loading-box">
+          <div class="loading-title" id="loading-title">Scanning...</div>
+          <div class="loading-steps" id="loading-steps"></div>
         </div>
 
-        <!-- GET /decode -->
-        <div class="endpoint-card" id="card-decode">
-          <div class="endpoint-header" onclick="toggle('card-decode')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/decode/{method}/{encoded}</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Decode a string</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Decode a Base64, Hex, or URL-encoded string back to its original
-              form.
-            </p>
-            <div class="field-group">
-              <label class="field-label">Method</label>
-              <select class="field-input" id="dec-method">
-                <option>base64</option>
-                <option>hex</option>
-                <option>url</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label">Encoded text</label>
-              <input
-                class="field-input"
-                id="dec-text"
-                type="text"
-                placeholder="e.g. aGVsbG8gd29ybGQ="
-                value="aGVsbG8gd29ybGQ="
-              />
-            </div>
-            <button class="run-btn" onclick="runDecode()">▶ Run Request</button>
-            <div class="result-box" id="res-card-decode"></div>
-          </div>
-        </div>
-
-        <div class="group-label">🌐 Network</div>
-
-        <!-- GET /ip -->
-        <div class="endpoint-card" id="card-ip">
-          <div class="endpoint-header" onclick="toggle('card-ip')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/ip/{address}</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >IP info + geolocation</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Get info about any IPv4 or IPv6 address — location, org, timezone,
-              type. Pass <code style="color: var(--cyan)">me</code> to look up
-              your own IP.
-            </p>
-            <div class="field-group">
-              <label class="field-label">IP Address</label>
-              <input
-                class="field-input"
-                id="ip-addr"
-                type="text"
-                placeholder="e.g. 8.8.8.8 or me"
-                value="me"
-              />
-            </div>
-            <button class="run-btn" onclick="runIP()">▶ Run Request</button>
-            <div class="result-box" id="res-card-ip"></div>
-          </div>
-        </div>
-
-        <!-- GET /time -->
-        <div class="endpoint-card" id="card-time">
-          <div class="endpoint-header" onclick="toggle('card-time')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/time</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Current UTC time</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Returns the current UTC time in multiple formats: ISO, Unix
-              timestamp, Unix ms, date, and time.
-            </p>
-            <button
-              class="run-btn"
-              onclick="runRequest('card-time', 'GET', '/time')"
-            >
-              ▶ Run Request
-            </button>
-            <div class="result-box" id="res-card-time"></div>
-          </div>
-        </div>
-
-        <div class="group-label">🔑 Password</div>
-
-        <!-- POST /password/analyze -->
-        <div class="endpoint-card" id="card-pw">
-          <div class="endpoint-header" onclick="toggle('card-pw')">
-            <span class="method-badge post">POST</span>
-            <span class="endpoint-path">/password/analyze</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Analyze password strength</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Scores a password on 10 security checks and returns strength
-              label, entropy estimate, and actionable feedback.
-              <strong style="color: var(--orange)"
-                >⚠ Don't use a real password here.</strong
-              >
-            </p>
-            <div class="field-group">
-              <label class="field-label">Password to test</label>
-              <input
-                class="field-input"
-                id="pw-input"
-                type="text"
-                placeholder="e.g. H@ckClub2024!"
-                value="H@ckClub2024!"
-              />
-            </div>
-            <button class="run-btn" onclick="runPassword()">
-              ▶ Run Request
-            </button>
-            <div class="result-box" id="res-card-pw"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Security Tools -->
-      <section id="security">
-        <div class="group-label">🛡️ Security Tools</div>
-
-        <div class="endpoint-card" id="card-recon">
-          <div class="endpoint-header" onclick="toggle('card-recon')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/recon</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Domain recon — IP, headers, tech stack, security gaps</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Resolves IP, probes HTTP headers, detects technologies, identifies
-              missing security headers, and generates a plain-English
-              smart_summary.
-            </p>
-            <div class="field-group">
-              <label class="field-label">Domain</label>
-              <input
-                class="field-input"
-                id="recon-domain"
-                type="text"
-                placeholder="e.g. example.com"
-                value="example.com"
-              />
-            </div>
-            <button class="run-btn" onclick="runRecon()">▶ Run Recon</button>
-            <div class="result-box" id="res-card-recon"></div>
-          </div>
-        </div>
-
-        <div class="endpoint-card" id="card-analyze">
-          <div class="endpoint-header" onclick="toggle('card-analyze')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/analyze-url</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Follow redirects, detect misconfigurations</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Follows redirect chain, inspects final headers, flags misconfigs
-              like CORS wildcards, exposed server banners, and missing HSTS.
-            </p>
-            <div class="field-group">
-              <label class="field-label">URL</label>
-              <input
-                class="field-input"
-                id="analyze-url-input"
-                type="text"
-                placeholder="e.g. https://example.com"
-                value="https://example.com"
-              />
-            </div>
-            <button class="run-btn" onclick="runAnalyze()">
-              ▶ Analyze URL
-            </button>
-            <div class="result-box" id="res-card-analyze"></div>
-          </div>
-        </div>
-
-        <div class="endpoint-card" id="card-bb">
-          <div class="endpoint-header" onclick="toggle('card-bb')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/bb-scan</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Bug bounty recon — probe common sensitive paths</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Probes 25+ paths: /admin, /.env, /api/v1, /.git/config and more.
-              Returns non-404 hits and bug bounty hints.
-              <strong style="color: var(--orange)"
-                >Only test targets you have permission to test.</strong
-              >
-            </p>
-            <div class="field-group">
-              <label class="field-label">Target URL</label>
-              <input
-                class="field-input"
-                id="bb-url"
-                type="text"
-                placeholder="e.g. https://example.com"
-                value="https://example.com"
-              />
-            </div>
-            <button class="run-btn" onclick="runBBScan()">▶ Run BB Scan</button>
-            <div class="result-box" id="res-card-bb"></div>
-          </div>
-        </div>
-
-        <div class="endpoint-card" id="card-payloads">
-          <div class="endpoint-header" onclick="toggle('card-payloads')">
-            <span class="method-badge get">GET</span>
-            <span class="endpoint-path">/payloads</span>
-            <span style="flex: 1; font-size: 0.75rem; color: var(--text-muted)"
-              >Categorized attack payloads for security testing</span
-            >
-            <span class="expand-icon">▼</span>
-          </div>
-          <div class="playground">
-            <p class="playground-desc">
-              Returns curated payloads for testing. Use only on systems you own
-              or have explicit permission to test.
-            </p>
-            <div class="field-group">
-              <label class="field-label">Payload Type</label>
-              <select class="field-input" id="payload-type">
-                <option value="xss">XSS — Cross-Site Scripting</option>
-                <option value="sqli">SQLi — SQL Injection</option>
-                <option value="lfi">LFI — Local File Inclusion</option>
-                <option value="ssrf">SSRF — Server-Side Request Forgery</option>
-              </select>
-            </div>
-            <button class="run-btn" onclick="runPayloads()">
-              ▶ Get Payloads
-            </button>
-            <div class="result-box" id="res-card-payloads"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Features -->
-      <section id="features">
-        <div class="section-label">What's inside</div>
-        <div class="feature-grid">
-          <div class="feature-card fade-up">
-            <div class="feature-icon icon-cyan">🔐</div>
-            <div class="feature-title">Cryptographic Hashing</div>
-            <div class="feature-desc">
-              9 algorithms including SHA-256, SHA-512, MD5, BLAKE2, and SHA-3
-              variants. Instant, no setup.
-            </div>
-          </div>
-          <div class="feature-card fade-up" style="animation-delay: 0.1s">
-            <div class="feature-icon icon-green">🔄</div>
-            <div class="feature-title">Encoding &amp; Decoding</div>
-            <div class="feature-desc">
-              Base64, Hex, and URL encoding in both directions. Essential for
-              web dev and security work.
-            </div>
-          </div>
-          <div class="feature-card fade-up" style="animation-delay: 0.2s">
-            <div class="feature-icon icon-cyan">🌐</div>
-            <div class="feature-title">IP Intelligence</div>
-            <div class="feature-desc">
-              Geolocation, org info, timezone, and type detection for any public
-              IPv4 or IPv6 address.
-            </div>
-          </div>
-          <div class="feature-card fade-up" style="animation-delay: 0.3s">
-            <div class="feature-icon icon-orange">🔑</div>
-            <div class="feature-title">Password Analysis</div>
-            <div class="feature-desc">
-              10-point security scoring with entropy estimation and specific,
-              actionable improvement tips.
-            </div>
-          </div>
-        </div>
-      </section>
+        <!-- Results -->
+        <div class="result-panel" id="result-panel"></div>
+      </div>
     </div>
 
-    <footer>
-      <div style="margin-top: 6px">
-        Source on
-        <a
-          href="https://github.com/vessel-69/cybertools-api"
-          target="_blank"
-          >GitHub</a
-        >
-        · Full docs at <a href="/docs">/docs</a>
-      </div>
-    </footer>
+    <div class="toast" id="toast">Copied!</div>
 
     <script>
-      // ── Toggle endpoint cards ──
-      function toggle(id) {
-        const card = document.getElementById(id);
-        card.classList.toggle("open");
+      // ── State ──
+      let _lastData = null;
+
+      // ── Helpers ────────────────────────────────────────────────────────────────────
+
+      function focusInput() {
+        document.getElementById("target").focus();
       }
 
-      // ── JSON syntax highlighter ──
-      function highlight(json) {
-        return json.replace(
-          /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-          (match) => {
-            if (/^"/.test(match)) {
-              return /:$/.test(match)
-                ? `<span class="json-key">${match}</span>`
-                : `<span class="json-string">${match}</span>`;
-            }
-            if (/true|false/.test(match))
-              return `<span class="json-bool">${match}</span>`;
-            if (/null/.test(match))
-              return `<span class="json-null">${match}</span>`;
-            return `<span class="json-number">${match}</span>`;
-          },
-        );
+      function getTarget() {
+        return document.getElementById("target").value.trim();
       }
 
-      // ── Show result ──
-      function showResult(cardId, data, isError) {
-        const box = document.getElementById("res-" + cardId);
-        const json = JSON.stringify(data, null, 2);
-        box.className = "result-box show";
-        box.innerHTML = `
-      <div class="result-header">
-        <span class="result-status ${isError ? "err" : "ok"}">${isError ? "✗ Error" : "✓ 200 OK"}</span>
-        <button class="copy-btn" onclick="copyResult('${cardId}')">copy</button>
-      </div>
-      <div class="result-body" id="body-${cardId}">${highlight(json)}</div>
-    `;
-        box._raw = json;
+      function toast(msg = "Copied!") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 1800);
       }
 
-      function copyResult(cardId) {
-        const box = document.getElementById("res-" + cardId);
-        navigator.clipboard.writeText(box._raw || "").then(() => {
-          const btn = box.querySelector(".copy-btn");
-          btn.textContent = "copied!";
-          setTimeout(() => (btn.textContent = "copy"), 1500);
+      function copyText(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => toast("Copied!"))
+          .catch(() => toast("Copy failed"));
+      }
+
+      // ── Loading ────────────────────────────────────────────────────────────────────
+
+      const STEP_SETS = {
+        recon: [
+          "Resolving DNS...",
+          "Probing HTTP headers...",
+          "Checking SSL certificate...",
+          "Analyzing tech stack...",
+        ],
+        analyze: [
+          "Following redirect chain...",
+          "Inspecting final headers...",
+          "Detecting misconfigurations...",
+        ],
+        "bb-scan": [
+          "Preparing path list...",
+          "Probing concurrently...",
+          "Collecting results...",
+        ],
+        workflow: [
+          "Resolving DNS...",
+          "Probing headers & SSL...",
+          "Following redirect chain...",
+          "Scanning 30+ paths...",
+          "Merging results...",
+        ],
+        payloads: ["Loading payloads..."],
+        "last-scan": ["Fetching last scan..."],
+        chat: ["Processing question..."],
+      };
+
+      let _stepTimer = null;
+
+      function startLoading(type, title) {
+        document.getElementById("welcome").style.display = "none";
+        document.getElementById("result-panel").classList.remove("show");
+        document.getElementById("result-panel").innerHTML = "";
+        const box = document.getElementById("loading-box");
+        box.classList.add("show");
+        document.getElementById("loading-title").textContent = title;
+
+        const steps = STEP_SETS[type] || ["Working..."];
+        const container = document.getElementById("loading-steps");
+        container.innerHTML = steps
+          .map(
+            (s, i) =>
+              `<div class="loading-step" id="lstep-${i}"><span class="step-icon" id="lstep-icon-${i}">○</span>${s}</div>`,
+          )
+          .join("");
+
+        let i = 0;
+        function tick() {
+          if (i > 0) {
+            document
+              .getElementById(`lstep-${i - 1}`)
+              .classList.remove("active");
+            document.getElementById(`lstep-${i - 1}`).classList.add("done");
+            document.getElementById(`lstep-icon-${i - 1}`).textContent = "✓";
+            document
+              .getElementById(`lstep-icon-${i - 1}`)
+              .classList.remove("spinning");
+          }
+          if (i < steps.length) {
+            const el = document.getElementById(`lstep-${i}`);
+            el.classList.add("active");
+            const icon = document.getElementById(`lstep-icon-${i}`);
+            icon.textContent = "◌";
+            icon.classList.add("spinning");
+            i++;
+            _stepTimer = setTimeout(tick, 900);
+          }
+        }
+        tick();
+      }
+
+      function stopLoading() {
+        clearTimeout(_stepTimer);
+        document.getElementById("loading-box").classList.remove("show");
+      }
+
+      // ── Render ─────────────────────────────────────────────────────────────────────
+
+      function showResults(sections) {
+        stopLoading();
+        const panel = document.getElementById("result-panel");
+        panel.innerHTML = "";
+        panel.classList.add("show");
+        sections.forEach((s, i) => {
+          panel.appendChild(buildSection(s, i));
         });
       }
 
-      // ── Generic GET ──
-      async function runRequest(cardId, method, path) {
-        const btn = document.querySelector(`#${cardId} .run-btn`);
-        btn.textContent = "⏳ Fetching...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch(path);
-          const data = await res.json();
-          showResult(cardId, data, !res.ok);
-        } catch (e) {
-          showResult(cardId, { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      function buildSection({ title, content, raw }, idx) {
+        const sec = document.createElement("div");
+        sec.className = "result-section";
+        sec.innerHTML = `
+    <div class="result-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span>${title}</span>
+      <div style="display:flex;gap:10px;align-items:center">
+        ${raw ? `<span class="json-toggle" onclick="event.stopPropagation();toggleRaw(${idx})">{ }</span>` : ""}
+        <span class="collapse-icon">▼</span>
+      </div>
+    </div>
+    <div class="result-section-body">${content}</div>
+    ${raw ? `<div class="json-raw" id="raw-${idx}">${escHtml(JSON.stringify(raw, null, 2))}</div>` : ""}
+  `;
+        return sec;
       }
 
-      // ── Hash ──
-      async function runHash() {
-        const algo = document.getElementById("hash-algo").value;
-        const text = document.getElementById("hash-text").value;
-        if (!text.trim()) return;
-        const btn = document.querySelector("#card-hash .run-btn");
-        btn.textContent = "⏳ Hashing...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch(`/hash/${algo}/${encodeURIComponent(text)}`);
-          const data = await res.json();
-          showResult("card-hash", data, !res.ok);
-        } catch (e) {
-          showResult("card-hash", { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      function toggleRaw(idx) {
+        document.getElementById(`raw-${idx}`).classList.toggle("show");
       }
 
-      // ── Encode ──
-      async function runEncode() {
-        const method = document.getElementById("enc-method").value;
-        const text = document.getElementById("enc-text").value;
-        if (!text.trim()) return;
-        const btn = document.querySelector("#card-encode .run-btn");
-        btn.textContent = "⏳ Encoding...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch(
-            `/encode/${method}/${encodeURIComponent(text)}`,
-          );
-          const data = await res.json();
-          showResult("card-encode", data, !res.ok);
-        } catch (e) {
-          showResult("card-encode", { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      function escHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
       }
 
-      // ── Decode ──
-      async function runDecode() {
-        const method = document.getElementById("dec-method").value;
-        const text = document.getElementById("dec-text").value;
-        if (!text.trim()) return;
-        const btn = document.querySelector("#card-decode .run-btn");
-        btn.textContent = "⏳ Decoding...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch(
-            `/decode/${method}/${encodeURIComponent(text)}`,
-          );
-          const data = await res.json();
-          showResult("card-decode", data, !res.ok);
-        } catch (e) {
-          showResult("card-decode", { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      // ── Render helpers ─────────────────────────────────────────────────────────────
+
+      function renderSummary(items) {
+        if (!items || !items.length)
+          return '<div style="color:var(--text-muted);font-size:.75rem">No summary data.</div>';
+        return `<div class="summary-list">${items
+          .map((line, i) => {
+            const isWarn =
+              /missing|fail|vuln|error|risk|exposed|warning|downgrade|clickjack|wildcard/i.test(
+                line,
+              );
+            const icon = isWarn ? "⚠" : "✓";
+            const cls = isWarn ? "warn" : "ok";
+            return `<div class="summary-item ${cls}" style="animation-delay:${i * 0.05}s"><span class="si-icon">${icon}</span><span>${escHtml(line)}</span></div>`;
+          })
+          .join("")}</div>`;
       }
 
-      // ── IP ──
-      async function runIP() {
-        const ip = document.getElementById("ip-addr").value || "me";
-        const btn = document.querySelector("#card-ip .run-btn");
-        btn.textContent = "⏳ Looking up...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch(`/ip/${ip.trim()}`);
-          const data = await res.json();
-          showResult("card-ip", data, !res.ok);
-        } catch (e) {
-          showResult("card-ip", { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      function renderNextSteps(items) {
+        if (!items || !items.length) return "";
+        return `<div class="steps-list">${items
+          .map(
+            (s, i) =>
+              `<div class="step-item" style="animation-delay:${i * 0.05}s"><span class="step-num">${i + 1}.</span><span>${escHtml(s)}</span></div>`,
+          )
+          .join("")}</div>`;
       }
 
-      // ── Password ──
-      async function runPassword() {
-        const pw = document.getElementById("pw-input").value;
-        if (!pw) return;
-        const btn = document.querySelector("#card-pw .run-btn");
-        btn.textContent = "⏳ Analyzing...";
-        btn.classList.add("loading");
-        try {
-          const res = await fetch("/password/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password: pw }),
-          });
-          const data = await res.json();
-          showResult("card-pw", data, !res.ok);
-        } catch (e) {
-          showResult("card-pw", { error: e.message }, true);
-        }
-        btn.textContent = "▶ Run Request";
-        btn.classList.remove("loading");
+      function renderKV(pairs) {
+        return `<div class="kv-grid">${pairs
+          .map(
+            ([k, v, cls]) =>
+              `<span class="kv-key">${escHtml(String(k))}</span><span class="kv-val ${cls || ""}">${escHtml(String(v ?? "—"))}</span>`,
+          )
+          .join("")}</div>`;
       }
 
-      // ── Recon ──
+      function renderPaths(paths) {
+        if (!paths || !paths.length)
+          return '<div style="color:var(--text-muted);font-size:.75rem">No interesting paths found.</div>';
+        return `<div class="paths-table">${paths
+          .map((p, i) => {
+            const s = p.status;
+            const cls = `status-${s}`;
+            return `<div class="path-row" style="animation-delay:${i * 0.04}s">
+      <span class="path-name">${escHtml(p.path)}</span>
+      <span class="path-status ${cls}">${s}</span>
+    </div>`;
+          })
+          .join("")}</div>`;
+      }
+
+      function renderPayloads(items) {
+        return `<div class="payload-list">${items
+          .map((item, i) => {
+            const p = typeof item === "object" ? item.payload : item;
+            const lbl = typeof item === "object" ? item.label : "";
+            return `<div class="payload-item" style="animation-delay:${i * 0.04}s" onclick="copyText('${p.replace(/'/g, "\\'")}')">
+      <span class="payload-code">${escHtml(p)}</span>
+      <span class="payload-label">${escHtml(lbl)}</span>
+      <span class="payload-copy">copy</span>
+    </div>`;
+          })
+          .join("")}</div>`;
+      }
+
+      function renderHints(items) {
+        if (!items || !items.length) return "";
+        return `<div class="summary-list">${items
+          .map(
+            (h, i) =>
+              `<div class="summary-item warn" style="animation-delay:${i * 0.04}s"><span class="si-icon">→</span><span>${escHtml(h)}</span></div>`,
+          )
+          .join("")}</div>`;
+      }
+
+      function renderChat(data) {
+        const lines = data.response || [];
+        return `<div class="summary-list">${lines
+          .map(
+            (l, i) =>
+              `<div class="summary-item ok" style="animation-delay:${i * 0.05}s"><span class="si-icon">→</span><span>${escHtml(l)}</span></div>`,
+          )
+          .join(
+            "",
+          )}${data.tip ? `<div style="margin-top:8px;font-size:.7rem;color:var(--text-muted)">${escHtml(data.tip)}</div>` : ""}</div>`;
+      }
+
+      // ── Update sidebar stats ────────────────────────────────────────────────────────
+
+      function updateStats(data) {
+        const r = data.recon || data;
+        document.getElementById("stats-panel").style.display = "flex";
+        document.getElementById("stat-target").textContent =
+          r.domain || data.target || "—";
+        document.getElementById("stat-ip").textContent = r.ip || "—";
+        document.getElementById("stat-status").textContent =
+          r.status_code || r.final_status || "—";
+        const ssl = r.ssl;
+        document.getElementById("stat-ssl").textContent = ssl
+          ? ssl.valid
+            ? `✓ ${ssl.days_remaining}d`
+            : "✗ invalid"
+          : "—";
+      }
+
+      // ── API calls ──────────────────────────────────────────────────────────────────
+
+      async function _fetch(url, opts = {}) {
+        const res = await fetch(url, opts);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || JSON.stringify(data));
+        return data;
+      }
+
+      function showError(msg) {
+        stopLoading();
+        const panel = document.getElementById("result-panel");
+        panel.innerHTML = `<div class="result-section">
+    <div class="result-section-header"><span>⚠ Error</span></div>
+    <div class="result-section-body">
+      <div class="summary-item warn"><span class="si-icon">✗</span><span>${escHtml(msg)}</span></div>
+    </div>
+  </div>`;
+        panel.classList.add("show");
+      }
+
+      // ── Commands ───────────────────────────────────────────────────────────────────
+
       async function runRecon() {
-        const domain = document.getElementById("recon-domain").value.trim();
-        if (!domain) return;
-        const btn = document.querySelector("#card-recon .run-btn");
-        btn.textContent = "⏳ Scanning...";
-        btn.classList.add("loading");
+        const t = getTarget();
+        if (!t) return;
+        startLoading("recon", `Recon: ${t}`);
         try {
-          const res = await fetch(
-            `/recon?domain=${encodeURIComponent(domain)}`,
-          );
-          const data = await res.json();
-          showResult("card-recon", data, !res.ok);
+          const d = await _fetch(`/recon?domain=${encodeURIComponent(t)}`);
+          _lastData = d;
+          updateStats(d);
+          showResults([
+            {
+              title: "◉ Host Info",
+              raw: d,
+              content:
+                renderKV([
+                  ["Domain", d.domain],
+                  ["IP", d.ip, "good"],
+                  ["Protocol", (d.protocol || "").toUpperCase()],
+                  [
+                    "Status",
+                    d.status_code,
+                    d.status_code < 400 ? "good" : "bad",
+                  ],
+                ]) +
+                (d.ssl
+                  ? `<div style="margin-top:12px">` +
+                    renderKV([
+                      [
+                        "SSL Valid",
+                        d.ssl.valid ? "Yes" : "No",
+                        d.ssl.valid ? "good" : "bad",
+                      ],
+                      ["Expires", d.ssl.expires],
+                      [
+                        "Days Left",
+                        d.ssl.days_remaining,
+                        d.ssl.days_remaining > 30 ? "good" : "bad",
+                      ],
+                      ["Issuer", d.ssl.issuer],
+                    ]) +
+                    `</div>`
+                  : ""),
+            },
+            {
+              title: "◉ Security Headers",
+              content: d.missing_security_headers?.length
+                ? renderHints(
+                    d.missing_security_headers.map((h) => `Missing: ${h}`),
+                  )
+                : '<div class="summary-item ok"><span>✓</span><span>All major security headers present.</span></div>',
+            },
+            {
+              title: "◉ Tech Stack",
+              content: d.tech_hints?.length
+                ? renderHints(d.tech_hints)
+                : '<div style="color:var(--text-muted);font-size:.75rem">No tech hints detected.</div>',
+            },
+            {
+              title: "◉ Smart Summary",
+              content: renderSummary(d.smart_summary),
+            },
+            { title: "◉ Next Steps", content: renderNextSteps(d.next_steps) },
+          ]);
         } catch (e) {
-          showResult("card-recon", { error: e.message }, true);
+          showError(e.message);
         }
-        btn.textContent = "▶ Run Recon";
-        btn.classList.remove("loading");
       }
 
-      // ── Analyze URL ──
       async function runAnalyze() {
-        const url = document.getElementById("analyze-url-input").value.trim();
-        if (!url) return;
-        const btn = document.querySelector("#card-analyze .run-btn");
-        btn.textContent = "⏳ Analyzing...";
-        btn.classList.add("loading");
+        let t = getTarget();
+        if (!t) return;
+        if (!t.startsWith("http")) t = "https://" + t;
+        startLoading("analyze", `Analyzing: ${t}`);
         try {
-          const res = await fetch(
-            `/analyze-url?url=${encodeURIComponent(url)}`,
-          );
-          const data = await res.json();
-          showResult("card-analyze", data, !res.ok);
+          const d = await _fetch(`/analyze-url?url=${encodeURIComponent(t)}`);
+          _lastData = d;
+          showResults([
+            {
+              title: "◉ Redirect Chain",
+              raw: d,
+              content: renderPaths(
+                d.redirect_chain?.map((r) => ({
+                  path: r.url,
+                  status: r.status,
+                })),
+              ),
+            },
+            {
+              title: "◉ Misconfigurations",
+              content: d.misconfig_hints?.length
+                ? renderHints(d.misconfig_hints)
+                : '<div class="summary-item ok"><span>✓</span><span>No obvious misconfigurations found.</span></div>',
+            },
+            {
+              title: "◉ Smart Summary",
+              content: renderSummary(d.smart_summary),
+            },
+            { title: "◉ Next Steps", content: renderNextSteps(d.next_steps) },
+          ]);
         } catch (e) {
-          showResult("card-analyze", { error: e.message }, true);
+          showError(e.message);
         }
-        btn.textContent = "▶ Analyze URL";
-        btn.classList.remove("loading");
       }
 
-      // ── BB Scan ──
       async function runBBScan() {
-        const url = document.getElementById("bb-url").value.trim();
-        if (!url) return;
-        const btn = document.querySelector("#card-bb .run-btn");
-        btn.textContent = "⏳ Probing paths...";
-        btn.classList.add("loading");
+        let t = getTarget();
+        if (!t) return;
+        if (!t.startsWith("http")) t = "https://" + t;
+        startLoading("bb-scan", `BB Scan: ${t}`);
         try {
-          const res = await fetch(`/bb-scan?url=${encodeURIComponent(url)}`);
-          const data = await res.json();
-          showResult("card-bb", data, !res.ok);
+          const d = await _fetch(`/bb-scan?url=${encodeURIComponent(t)}`);
+          _lastData = d;
+          showResults([
+            {
+              title: `◉ Interesting Paths (${d.interesting_paths?.length || 0})`,
+              raw: d,
+              content: renderPaths(d.interesting_paths),
+            },
+            { title: "◉ All Results", content: renderPaths(d.all_results) },
+            {
+              title: "◉ Bug Bounty Hints",
+              content: renderHints(d.bug_bounty_hints),
+            },
+            { title: "◉ Next Steps", content: renderNextSteps(d.next_steps) },
+          ]);
         } catch (e) {
-          showResult("card-bb", { error: e.message }, true);
+          showError(e.message);
         }
-        btn.textContent = "▶ Run BB Scan";
-        btn.classList.remove("loading");
       }
 
-      // ── Payloads ──
+      async function runWorkflow() {
+        const t = getTarget();
+        if (!t) return;
+        startLoading("workflow", `Workflow: ${t}`);
+        try {
+          const d = await _fetch(`/workflow?target=${encodeURIComponent(t)}`);
+          _lastData = d;
+          updateStats(d);
+          showResults([
+            {
+              title: `◉ Full Workflow — ${d.target} (${d.elapsed_seconds}s)`,
+              raw: d,
+              content: renderKV([
+                ["Target", d.target],
+                ["Elapsed", `${d.elapsed_seconds}s`],
+              ]),
+            },
+            {
+              title: "◉ Smart Summary",
+              content: renderSummary(d.smart_summary),
+            },
+            {
+              title: `◉ Interesting Paths (${d.bb_scan?.interesting_paths?.length || 0})`,
+              content: renderPaths(d.bb_scan?.interesting_paths),
+            },
+            {
+              title: "◉ Misconfigurations",
+              content: d.analysis?.misconfig_hints?.length
+                ? renderHints(d.analysis.misconfig_hints)
+                : '<div class="summary-item ok"><span>✓</span><span>No misconfigurations detected.</span></div>',
+            },
+            { title: "◉ Next Steps", content: renderNextSteps(d.next_steps) },
+          ]);
+        } catch (e) {
+          showError(e.message);
+        }
+      }
+
       async function runPayloads() {
         const type = document.getElementById("payload-type").value;
-        const btn = document.querySelector("#card-payloads .run-btn");
-        btn.textContent = "⏳ Loading...";
-        btn.classList.add("loading");
+        startLoading("payloads", `Payloads: ${type.toUpperCase()}`);
         try {
-          const res = await fetch(`/payloads?type=${type}`);
-          const data = await res.json();
-          showResult("card-payloads", data, !res.ok);
+          const d = await _fetch(`/payloads?type=${type}`);
+          showResults([
+            {
+              title: `◉ ${type.toUpperCase()} Payloads (${d.count})`,
+              content:
+                `<div style="font-size:.72rem;color:var(--text-muted);margin-bottom:12px">${escHtml(d.description)} · Click any payload to copy.</div>` +
+                renderPayloads(d.payloads),
+            },
+            { title: "◉ Usage Tips", content: renderNextSteps(d.usage_tips) },
+          ]);
         } catch (e) {
-          showResult("card-payloads", { error: e.message }, true);
+          showError(e.message);
         }
-        btn.textContent = "▶ Get Payloads";
-        btn.classList.remove("loading");
       }
 
-      // ── Intersection observer for fade-up ──
-      const obs = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) e.target.style.animationPlayState = "running";
+      async function runLastScan() {
+        startLoading("last-scan", "Last Scan");
+        try {
+          const d = await _fetch("/last-scan");
+          showResults([
+            {
+              title: `◉ Last Scan — ${d.key}`,
+              raw: d.data,
+              content: renderKV([
+                ["Target", d.key],
+                ["Time", d.timestamp],
+              ]),
+            },
+            {
+              title: "◉ Summary",
+              content: renderSummary(
+                d.data?.smart_summary || d.data?.recon?.smart_summary,
+              ),
+            },
+          ]);
+        } catch (e) {
+          showError(e.message);
+        }
+      }
+
+      async function runChat() {
+        const q = document.getElementById("chat-q").value.trim();
+        if (!q) return;
+        startLoading("chat", `Ask: ${q}`);
+        try {
+          const res = await fetch("/chat-assist", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: q }),
           });
-        },
-        { threshold: 0.1 },
-      );
-      document.querySelectorAll(".fade-up").forEach((el) => {
-        el.style.animationPlayState = "paused";
-        obs.observe(el);
-      });
+          const d = await res.json();
+          if (!res.ok) throw new Error(d.detail || JSON.stringify(d));
+          showResults([{ title: `◉ ${q}`, content: renderChat(d) }]);
+          document.getElementById("chat-q").value = "";
+        } catch (e) {
+          showError(e.message);
+        }
+      }
     </script>
   </body>
 </html>

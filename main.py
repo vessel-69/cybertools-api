@@ -1,3 +1,6 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from pathlib import Path
@@ -9,7 +12,7 @@ import string
 import ipaddress
 import urllib.request
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 
 app = FastAPI(
     title="CyberTools API",
@@ -221,7 +224,7 @@ def ip_info(ip: str):
 @app.get("/time", tags=["Utilities"])
 def current_time():
     """Returns current UTC time in multiple formats."""
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     return {
         "utc": now.isoformat() + "Z",
         "unix_timestamp": int(now.timestamp()),
