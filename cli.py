@@ -34,6 +34,7 @@ def _print(data: dict):
     DIM    = "\033[2m"
 
     # Print smart_summary first if present
+
     if "smart_summary" in data and data["smart_summary"]:
         print(f"\n{BOLD}── Smart Summary ──{RESET}")
         for line in data["smart_summary"]:
@@ -41,6 +42,7 @@ def _print(data: dict):
         print()
 
     # Print rest of data
+
     for k, v in data.items():
         if k == "smart_summary":
             continue
@@ -70,7 +72,7 @@ def _header(title: str):
     print("─" * 50)
 
 
-# ── Commands ───────────────────────────────────────────────────────────────────
+# ---------- Commands ----------
 
 def cmd_recon(domain: str):
     _header(f"Recon: {domain}")
@@ -99,7 +101,7 @@ def cmd_payloads(ptype: str):
     _print(data)
 
 
-# ── Entry point ────────────────────────────────────────────────────────────────
+# ---------- Entry point ----------
 
 def main():
     YELLOW = "\033[93m"
