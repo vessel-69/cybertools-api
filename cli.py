@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""
-cli.py — CyberTools API command line interface
-
-Usage:
-  python cli.py recon <domain>
-  python cli.py scan <url>
-  python cli.py analyze <url>
-  python cli.py payloads <xss|sqli|lfi|ssrf>
-
-Set BASE_URL env var to point to your deployed API.
-Defaults to http://localhost:8000
-"""
-
 import sys
 import json
 import os
@@ -22,7 +8,7 @@ import urllib.error
 BASE_URL = os.environ.get("CYBERTOOLS_URL", "http://localhost:8000").rstrip("/")
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+# ---------- Helpers ----------
 
 def _get(path: str) -> dict:
     url = BASE_URL + path
