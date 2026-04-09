@@ -1,103 +1,119 @@
 # ⚡ CyberTools API
 
-[](https://fastapi.tiangolo.com/)
-[](https://www.python.org/)
-[](https://fly.io)
+A versatile, high-performance security and developer utility API built with **FastAPI** and a **React + TypeScript** frontend.
 
-A versatile, high-performance toolkit for common security and developer tasks. Built with **FastAPI** and deployed globally for free.
-
-**Live URL:** 
-> https://cybertools-api.fly.dev
-
-**Interactive Docs:**
-> https://cybertools-api.fly.dev/docs
+**Live URL:** https://cybertools-api.fly.dev  
+**Interactive Docs:** https://cybertools-api.fly.dev/docs
 
 ---
 
+## 🗂 Project Structure
 
-## **🛠 Features & How to Use** ##
-
-### 1\. Hashing Engine
-
-Securely hash strings using multiple industry-standard algorithms.
-
-- **Supported:** `md5`, `sha1`, `sha256`, `sha512`, `blake2b`, and more.
-- **How to use:** 
-
-  - **GET:** `/hash/{algorithm}/{text}`
-  - **POST:** Send a JSON body to `/hash` with `{"text": "your_string", "algorithm": "sha256"}`.
-
-### 2\. Encoding & Decoding
-
-Convert data between different formats for web and binary tasks.
-
-- **Methods:** `base64`, `hex`, `url`.
-- **How to use:** 
-
-  - **Encode:** `GET /encode/base64/hello` → returns `aGVsbG8=`.
-  - **Decode:** `GET /decode/base64/aGVsbG8=` → returns `hello`.
-
-### 3\. Smart Password Analysis
-
-Don't just check length—analyze the actual security of a password.
-
-- **Features:** Entropy estimation, character variety checks, and actionable feedback.
-- **How to use:**
-
-  - **POST:** `/password/analyze` with `{"password": "your_password"}`.
-  - **Response:** Returns a strength label (e.g., "Strong") and a list of tips to improve it.
-
-### 4\. Network Intelligence
-
-Quickly identify IP properties and geolocation data.
-
-- **How to use:**
-
-  - **Check any IP:** `GET /ip/8.8.8.8`.
-  - **Check yourself:** `GET /ip/me` to see your current public IP and origin.
+```
+cybertools-api/
+├── routes/
+│   ├── __init__.py
+│   └── security.py          # recon, analyze-url, bb-scan, payloads, workflow, chat
+├── services/
+│   ├── __init__.py
+│   └── recon.py             # all logic — pure functions
+├── frontend/
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts       # proxies API routes to FastAPI in dev
+│   ├── index.html
+│   └── src/
+│       ├── main.tsx
+│       ├── App.tsx           # root component, all state
+│       ├── index.css         # lime/dark terminal aesthetic
+│       ├── types/index.ts    # TypeScript types for all API responses
+│       ├── api/client.ts     # typed fetch wrappers
+│       └── components/
+│           ├── Navbar.tsx
+│           ├── LeftPanel.tsx
+│           ├── ResultPanel.tsx
+│           ├── ui/primitives.tsx   # KVRow, Section, HintItem, etc.
+│           └── results/index.tsx   # ReconSection, BBScanSection, etc.
+├── cli.py                   # CLI tool (python cli.py recon example.com)
+├── main.py                  # FastAPI entry point
+├── Dockerfile               # multi-stage: Node builds frontend, Python serves
+├── fly.toml                 # Fly.io deployment config
+├── requirements.txt
+└── ui.html                  # fallback if frontend not built
+```
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Local Development
 
-To run this API on your own Ubuntu machine:
+### 1. Backend (FastAPI)
 
-1.  **Clone and Enter:**
+```bash
+cd cybertools-api
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-    ```bash
-    git clone https://github.com/vessel-69/cybertools-api.git
-    cd cybertools-api
-    ```
+### 2. Frontend (React + TypeScript)
 
-2.  **Setup Virtual Environment:**
+```bash
+cd frontend
+npm install
+npm run build       # build once → FastAPI serves it at localhost:8000
 
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-
-3.  **Install & Run:**
-
-    ```bash
-    pip install -r requirements.txt
-    uvicorn main:app --reload
-    ```
-
-    View the API at http://127.0.0.1:8000/docs 
+# OR for hot-reload dev:
+npm run dev         # → http://localhost:5173 (proxies API to :8000)
+```
 
 ---
 
-## 📦 Deployment
+## 🛠 API Endpoints
 
-This project is optimized for **Docker** and **Fly.io**.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/recon?domain=` | IP, SSL, headers, tech stack |
+| GET | `/analyze-url?url=` | Redirect chain, misconfigurations |
+| GET | `/bb-scan?url=` | Bug bounty path scan (concurrent) |
+| GET | `/payloads?type=` | xss, sqli, lfi, ssrf payloads |
+| GET | `/workflow?target=` | Full pipeline (recon+analyze+scan) |
+| GET | `/last-scan` | Cached result from last scan |
+| POST | `/chat-assist` | Rule-based assistant |
+| GET | `/hash/{algo}/{text}` | Hash a string |
+| GET | `/encode/{method}/{text}` | base64, hex, url encode |
+| GET | `/decode/{method}/{text}` | Decode |
+| POST | `/password/analyze` | Password strength analysis |
+| GET | `/ip/{ip}` | IP geolocation info |
+| GET | `/time` | UTC time in multiple formats |
 
-- **Region:** Deployed in `sin` (Singapore) for optimal performance in the Asia-Pacific region.
-- **Memory:** Runs on a lightweight `shared-cpu-1x` with `256mb` RAM.
+---
+
+## 🖥 CLI
+
+```bash
+python cli.py recon    example.com
+python cli.py analyze  https://example.com
+python cli.py scan     https://example.com
+python cli.py payloads xss
+python cli.py workflow example.com
+python cli.py last
+python cli.py ask "What should I test first?"
+```
+
+---
+
+## 📦 Deployment (Fly.io)
+
+```bash
+fly auth signup
+fly launch
+fly deploy
+```
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
-
----
+MIT License

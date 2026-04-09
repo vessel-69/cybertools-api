@@ -1,5 +1,4 @@
 # --- Python / Virtual Environment ---
-
 venv/
 .venv/
 env/
@@ -9,25 +8,27 @@ env/
 **/*.pyd
 .Python
 pip-log.txt
-pip-delete-this-directory.txt
-.toast
 *.tslog
 
-# --- Environment Variables ---
+# --- React / Frontend (CRITICAL) ---
+# This is likely where your 10k files are coming from
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.vite/
+*.local
 
+# --- Environment Variables ---
 .env
-.venv
-env.local
 .env.secret
+.env.*.local
 
 # --- Docker & Fly.io ---
-
 .dockerignore
 *.log
 .fly/
 
 # --- OS Specific ---
-
 .DS_Store
 .DS_Store?
 ._*
@@ -35,7 +36,6 @@ Thumbs.db
 desktop.ini
 
 # --- Editor Specific ---
-
 .vscode/
 .idea/
 *.swp
