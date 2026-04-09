@@ -1,103 +1,94 @@
-# ⚡ CyberTools API
+# 🛠️ CyberTools API
 
-[](https://fastapi.tiangolo.com/)
-[](https://www.python.org/)
+**A versatile, lean security toolkit for the modern Red Teamer.**
+
+[](https://github.com/vessel-69/cybertools-api)
 [](https://fly.io)
-
-A versatile, high-performance toolkit for common security and developer tasks. Built with **FastAPI** and deployed globally for free.
-
-**Live URL:** 
-> https://cybertools-api.fly.dev
-
-**Interactive Docs:**
-> https://cybertools-api.fly.dev/docs
-
----
+[](https://fly.io/docs/reference/regions/)
 
 
-## **🛠 Features & How to Use** ##
+CyberTools API is a high-performance security backend built with **FastAPI**, designed to handle the heavy lifting of hashing, encoding, and password analysis. Whether you're auditing credentials or automating encoding workflows, this API provides the precision and speed required for tactical operations.
 
-### 1\. Hashing Engine
+-----
 
-Securely hash strings using multiple industry-standard algorithms.
+## ⚡ Core Features
 
-- **Supported:** `md5`, `sha1`, `sha256`, `sha512`, `blake2b`, and more.
-- **How to use:** 
+  - **🔐 Cryptographic Hashing:** Support for MD5, SHA-1, SHA-256, and SHA-512.
+  - **🛡️ Password Analysis:** Comprehensive entropy checks and complexity scoring.
+  - **🔄 Encoding/Decoding:** Multi-layer support including Base64 and URL encoding.
+  - **🐳 Dockerized Architecture:** Optimized for lightweight deployment and scaling.
+  - **🎨 Minimalist UI:** Includes `ui.html` featuring a custom low-key aesthetic.
 
-  - **GET:** `/hash/{algorithm}/{text}`
-  - **POST:** Send a JSON body to `/hash` with `{"text": "your_string", "algorithm": "sha256"}`.
 
-### 2\. Encoding & Decoding
+-----
 
-Convert data between different formats for web and binary tasks.
+## 🚀 Quick Start
 
-- **Methods:** `base64`, `hex`, `url`.
-- **How to use:** 
+### 1\. Prerequisites
 
-  - **Encode:** `GET /encode/base64/hello` → returns `aGVsbG8=`.
-  - **Decode:** `GET /decode/base64/aGVsbG8=` → returns `hello`.
+  - Python 3.12+
+  - Docker (optional for containerized runs)
 
-### 3\. Smart Password Analysis
+### 2\. Local Installation
 
-Don't just check length—analyze the actual security of a password.
+```bash
+# Clone the repository
+git clone https://github.com/vessel-69/cybertools-api.git
+cd cybertools-api
 
-- **Features:** Entropy estimation, character variety checks, and actionable feedback.
-- **How to use:**
+# Install dependencies
+pip install -r requirements.txt
 
-  - **POST:** `/password/analyze` with `{"password": "your_password"}`.
-  - **Response:** Returns a strength label (e.g., "Strong") and a list of tips to improve it.
+# Run the API
+uvicorn main:app --reload
+```
 
-### 4\. Network Intelligence
+### 3\. Docker Deployment
 
-Quickly identify IP properties and geolocation data.
+```bash
+docker build -t cybertools-api .
+docker run -p 8080:8080 cybertools-api
+```
 
-- **How to use:**
+-----
 
-  - **Check any IP:** `GET /ip/8.8.8.8`.
-  - **Check yourself:** `GET /ip/me` to see your current public IP and origin.
+## 🌍 Infrastructure
 
----
+  - **Hosting:** [Fly.io](https://fly.io)
+  - **CI/CD:** Automated via GitHub Actions (configured for `vessel-69`)
 
-## 🚀 Quick Start (Local Development)
+-----
 
-To run this API on your own Ubuntu machine:
+## 📁 Repository Structure
 
-1.  **Clone and Enter:**
+```text
+.
+├── app/
+│   ├── main.py          # FastAPI Core logic
+│   ├── hashing.py       # Cryptographic functions
+│   └── encoding.py      # Data transformation logic
+├── static/
+│   └── ui.html          # Custom UI dashboard
+├── .gitignore           # Recursively ignores __pycache__
+├── Dockerfile           # Fly.io deployment config
+└── README.md            # You are here
+```
 
-    ```bash
-    git clone https://github.com/vessel-69/cybertools-api.git
-    cd cybertools-api
-    ```
+-----
 
-2.  **Setup Virtual Environment:**
+## 🛡️ Operational Security (OPSEC)
 
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+This project is built for security research and ethical testing.
 
-3.  **Install & Run:**
+  - **No Logs Policy:** Designed to be stateless.
+  - **Clean Repo:** All sensitive history and cached files are purged.
 
-    ```bash
-    pip install -r requirements.txt
-    uvicorn main:app --reload
-    ```
+-----
 
-    View the API at http://127.0.0.1:8000/docs 
+## 👨‍💻 Maintainer
 
----
+**Vessel** *GitHub: [@vessel-69](https://www.google.com/search?q=https://github.com/vessel-69)*
 
-## 📦 Deployment
+-----
 
-This project is optimized for **Docker** and **Fly.io**.
-
-- **Region:** Deployed in `sin` (Singapore) for optimal performance in the Asia-Pacific region.
-- **Memory:** Runs on a lightweight `shared-cpu-1x` with `256mb` RAM.
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.
-
----
+*© 2026 CyberTools API | Versatility in every bit.*
