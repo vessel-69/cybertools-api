@@ -1,10 +1,11 @@
 import type {
   ReconResult, AnalyzeResult, BBScanResult,
   PayloadResult, WorkflowResult, LastScanResult, ChatResult,
+  ExpandResult, EndpointsResult, ParamsResult,
 } from '../../types'
-import {
-  KVRow, HintItem, SummaryItem, NextStep, PathRow, PayloadItem, Section,
-} from '../ui/primitives'
+import { KVRow, HintItem, SummaryItem, NextStep, PathRow, PayloadItem, Section } from '../ui/primitives'
+
+// ── Recon ─────────────────────────────────────────────────────────────────────
 
 export function ReconSection({ d }: { d: ReconResult }) {
   return (
@@ -13,18 +14,14 @@ export function ReconSection({ d }: { d: ReconResult }) {
         <KVRow label="Domain"   value={d.domain} />
         <KVRow label="IP"       value={d.ip} tone="good" />
         <KVRow label="Protocol" value={d.protocol?.toUpperCase()} />
-        <KVRow label="Status"   value={d.status_code}
-          tone={d.status_code && d.status_code < 400 ? 'good' : 'bad'} />
-        {d.ssl && (
-          <>
-            <KVRow label="SSL Valid"  value={d.ssl.valid ? 'Yes' : 'No'} tone={d.ssl.valid ? 'good' : 'bad'} />
-            <KVRow label="Expires"    value={d.ssl.expires} />
-            <KVRow label="Days Left"  value={d.ssl.days_remaining}
-              tone={d.ssl.days_remaining && d.ssl.days_remaining > 30 ? 'good' : 'bad'} />
-            <KVRow label="Issuer"     value={d.ssl.issuer} />
-            {d.ssl.warning && <HintItem text={d.ssl.warning} tone="warn" />}
-          </>
-        )}
+        <KVRow label="Status"   value={d.status_code} tone={d.status_code && d.status_code < 400 ? 'good' : 'bad'} />
+        {d.ssl && <>
+          <KVRow label="SSL Valid"  value={d.ssl.valid ? 'Yes' : 'No'} tone={d.ssl.valid ? 'good' : 'bad'} />
+          <KVRow label="Expires"    value={d.ssl.expires} />
+          <KVRow label="Days Left"  value={d.ssl.days_remaining} tone={d.ssl.days_remaining && d.ssl.days_remaining > 30 ? 'good' : 'bad'} />
+          <KVRow label="Issuer"     value={d.ssl.issuer} />
+          {d.ssl.warning && <HintItem text={d.ssl.warning} tone="warn" />}
+        </>}
       </Section>
 
       <Section title="◉ Security Headers">
@@ -54,6 +51,8 @@ export function ReconSection({ d }: { d: ReconResult }) {
   )
 }
 
+// ── Analyze URL ───────────────────────────────────────────────────────────────
+
 export function AnalyzeSection({ d }: { d: AnalyzeResult }) {
   return (
     <div className="fade-in">
@@ -61,9 +60,8 @@ export function AnalyzeSection({ d }: { d: AnalyzeResult }) {
         {d.redirect_chain?.length
           ? d.redirect_chain.map((hop, i) => <PathRow key={i} path={hop.url} status={hop.status} />)
           : <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>No redirects.</span>}
-        {d.final_url    && <KVRow label="Final URL"    value={d.final_url} />}
-        {d.final_status && <KVRow label="Final Status" value={d.final_status}
-          tone={d.final_status < 400 ? 'good' : 'bad'} />}
+        {d.final_url && <KVRow label="Final URL" value={d.final_url} />}
+        {d.final_status && <KVRow label="Final Status" value={d.final_status} tone={d.final_status < 400 ? 'good' : 'bad'} />}
       </Section>
 
       <Section title="◉ Misconfigurations">
@@ -86,6 +84,8 @@ export function AnalyzeSection({ d }: { d: AnalyzeResult }) {
     </div>
   )
 }
+
+// ── BB Scan ───────────────────────────────────────────────────────────────────
 
 export function BBScanSection({ d }: { d: BBScanResult }) {
   return (
@@ -113,6 +113,8 @@ export function BBScanSection({ d }: { d: BBScanResult }) {
   )
 }
 
+// ── Payloads ──────────────────────────────────────────────────────────────────
+
 export function PayloadSection({ d }: { d: PayloadResult }) {
   return (
     <div className="fade-in">
@@ -130,13 +132,15 @@ export function PayloadSection({ d }: { d: PayloadResult }) {
   )
 }
 
+// ── Workflow ──────────────────────────────────────────────────────────────────
+
 export function WorkflowSection({ d }: { d: WorkflowResult }) {
   return (
     <div className="fade-in">
       <Section title={`◉ Full Workflow — ${d.target}`}>
         <KVRow label="Target"  value={d.target} />
         <KVRow label="Elapsed" value={`${d.elapsed_seconds}s`} tone="good" />
-        {d.recon?.ip          && <KVRow label="IP"     value={d.recon.ip} />}
+        {d.recon?.ip && <KVRow label="IP" value={d.recon.ip} />}
         {d.recon?.status_code && <KVRow label="Status" value={d.recon.status_code} />}
       </Section>
 
@@ -167,11 +171,12 @@ export function WorkflowSection({ d }: { d: WorkflowResult }) {
   )
 }
 
+// ── Last Scan ─────────────────────────────────────────────────────────────────
+
 export function LastScanSection({ d }: { d: LastScanResult }) {
-  const summary =
-    (d.data as ReconResult).smart_summary ??
-    (d.data as WorkflowResult).recon?.smart_summary ??
-    []
+  const summary = (d.data as ReconResult).smart_summary
+    ?? (d.data as WorkflowResult).recon?.smart_summary
+    ?? []
   return (
     <div className="fade-in">
       <Section title={`◉ Last Scan — ${d.key}`}>
@@ -187,21 +192,182 @@ export function LastScanSection({ d }: { d: LastScanResult }) {
   )
 }
 
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
 export function ChatSection({ d }: { d: ChatResult }) {
   return (
     <div className="fade-in">
       <Section title={`◉ ${d.question}`}>
         {d.response.map((line, i) => <SummaryItem key={i} text={line} />)}
         {d.tip && (
-          <div style={{
-            marginTop: 12, padding: '8px 10px',
-            background: 'var(--surface2)', borderRadius: 6,
-            fontSize: '0.72rem', color: 'var(--text-muted)',
-          }}>
+          <div style={{ marginTop: 12, padding: '8px 10px', background: 'var(--surface2)', borderRadius: 6, fontSize: '0.72rem', color: 'var(--text-muted)' }}>
             <span style={{ color: 'var(--lime)' }}>tip: </span>{d.tip}
           </div>
         )}
       </Section>
+    </div>
+  )
+}
+
+// ── Expand ─────────────────────────────────────────────────────────────────────
+
+export function ExpandSection({ d }: { d: ExpandResult }) {
+  const live = d.subdomains.filter(s => s.live)
+  const dead = d.subdomains.filter(s => !s.live)
+
+  return (
+    <div className="fade-in">
+      <Section title="◉ Overview">
+        <KVRow label="Domain"      value={d.domain} />
+        <KVRow label="Total found" value={d.total_found} />
+        <KVRow label="Live"        value={d.live_count} tone={d.live_count > 0 ? 'good' : 'warn'} />
+        <KVRow label="Sources"     value={d.sources.join(', ')} />
+      </Section>
+
+      <Section title={`◉ Live Subdomains (${live.length})`}>
+        {live.length ? live.map((s, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: '0.74rem', borderBottom: '1px solid var(--border)' }}>
+            <span style={{ color: 'var(--lime)', fontWeight: 500 }}>● {s.subdomain}</span>
+            <span style={{ color: 'var(--text-muted)' }}>{s.ip}</span>
+          </div>
+        )) : <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>No live subdomains found.</span>}
+      </Section>
+
+      {dead.length > 0 && (
+        <Section title={`◉ Non-resolving (${dead.length})`} defaultOpen={false}>
+          {dead.map((s, i) => (
+            <div key={i} style={{ padding: '3px 0', fontSize: '0.73rem', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
+              ○ {s.subdomain}
+            </div>
+          ))}
+        </Section>
+      )}
+
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Endpoints ──────────────────────────────────────────────────────────────────
+
+const TYPE_COLORS: Record<string, string> = {
+  sensitive:  'var(--red)',
+  admin:      'var(--red)',
+  api:        'var(--lime)',
+  auth:       'var(--yellow)',
+  monitoring: 'var(--yellow)',
+  other:      'var(--text-dim)',
+}
+
+export function EndpointsSection({ d }: { d: EndpointsResult }) {
+  const byType = ['sensitive', 'admin', 'api', 'auth', 'monitoring', 'other']
+
+  return (
+    <div className="fade-in">
+      <Section title="◉ Overview">
+        <KVRow label="Target"         value={d.target} />
+        <KVRow label="Paths probed"   value={d.paths_probed} />
+        <KVRow label="Endpoints found" value={d.endpoints_found} tone={d.endpoints_found > 0 ? 'good' : undefined} />
+      </Section>
+
+      {d.endpoints.length > 0 && (
+        <Section title={`◉ Found Endpoints (${d.endpoints.length})`}>
+          {byType.map(type => {
+            const group = d.endpoints.filter(ep => ep.type === type)
+            if (!group.length) return null
+            return (
+              <div key={type} style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: '0.62rem', letterSpacing: 2, textTransform: 'uppercase', color: TYPE_COLORS[type] || 'var(--text-dim)', marginBottom: 4 }}>
+                  {type}
+                </div>
+                {group.map((ep, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 8px', borderRadius: 4, marginBottom: 3, background: 'var(--surface2)', fontSize: '0.73rem' }}>
+                    <span style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{ep.path}</span>
+                    <span style={{ color: ep.status === 200 ? 'var(--lime)' : ep.status < 400 ? 'var(--yellow)' : 'var(--red)', fontWeight: 700 }}>{ep.status}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </Section>
+      )}
+
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Params ─────────────────────────────────────────────────────────────────────
+
+export function ParamsSection({ d }: { d: ParamsResult }) {
+  const riskColor = (r: string) =>
+    r === 'high' ? 'var(--red)' : r === 'medium' ? 'var(--yellow)' : 'var(--lime)'
+
+  return (
+    <div className="fade-in">
+      <Section title="◉ Overview">
+        <KVRow label="Target"       value={d.target} />
+        <KVRow label="Params tested" value={d.params_tested} />
+        <KVRow label="Interesting"  value={d.interesting.length} tone={d.interesting.length > 0 ? 'warn' : undefined} />
+        <KVRow label="High risk"    value={d.high_risk.length}   tone={d.high_risk.length > 0 ? 'bad' : undefined} />
+      </Section>
+
+      {d.interesting.length > 0 && (
+        <Section title={`◉ Interesting Parameters (${d.interesting.length})`}>
+          {d.interesting.map((p, i) => (
+            <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <span style={{ color: riskColor(p.risk), fontSize: '0.65rem', letterSpacing: 1, textTransform: 'uppercase', border: `1px solid ${riskColor(p.risk)}`, padding: '1px 6px', borderRadius: 3 }}>
+                  {p.risk}
+                </span>
+                <code style={{ color: 'var(--lime)', fontSize: '0.78rem', fontWeight: 600 }}>?{p.name}=FUZZ</code>
+              </div>
+              <div style={{ fontSize: '0.71rem', color: 'var(--text-dim)', paddingLeft: 4 }}>↳ {p.test}</div>
+            </div>
+          ))}
+        </Section>
+      )}
+
+      <Section title={`◉ All High-Risk Parameters (${d.high_risk.length})`} defaultOpen={d.interesting.length === 0}>
+        {d.high_risk.length ? d.high_risk.map((p, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: '0.74rem', borderBottom: '1px solid var(--border)' }}>
+            <code style={{ color: 'var(--lime)' }}>?{p.name}=</code>
+            <span style={{ color: 'var(--text-dim)', fontSize: '0.68rem', maxWidth: '60%', textAlign: 'right' }}>{p.test}</span>
+          </div>
+        )) : <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>None found.</span>}
+      </Section>
+
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
     </div>
   )
 }

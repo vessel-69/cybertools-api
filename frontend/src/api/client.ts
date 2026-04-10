@@ -1,6 +1,7 @@
 import type {
   ReconResult, AnalyzeResult, BBScanResult,
   PayloadResult, WorkflowResult, LastScanResult, ChatResult,
+  ExpandResult, EndpointsResult, ParamsResult,
 } from '../types'
 
 async function _get<T>(path: string): Promise<T> {
@@ -22,11 +23,33 @@ async function _post<T>(path: string, body: unknown): Promise<T> {
 }
 
 export const api = {
-  recon:    (domain: string) => _get<ReconResult>(`/recon?domain=${encodeURIComponent(domain)}`),
-  analyze:  (url: string)    => _get<AnalyzeResult>(`/analyze-url?url=${encodeURIComponent(url)}`),
-  bbScan:   (url: string)    => _get<BBScanResult>(`/bb-scan?url=${encodeURIComponent(url)}`),
-  payloads: (type: string)   => _get<PayloadResult>(`/payloads?type=${encodeURIComponent(type)}`),
-  workflow: (target: string) => _get<WorkflowResult>(`/workflow?target=${encodeURIComponent(target)}`),
-  lastScan: ()               => _get<LastScanResult>('/last-scan'),
-  chat:     (question: string) => _post<ChatResult>('/chat-assist', { question }),
+  recon: (domain: string) =>
+    _get<ReconResult>(`/recon?domain=${encodeURIComponent(domain)}`),
+
+  analyze: (url: string) =>
+    _get<AnalyzeResult>(`/analyze-url?url=${encodeURIComponent(url)}`),
+
+  bbScan: (url: string) =>
+    _get<BBScanResult>(`/bb-scan?url=${encodeURIComponent(url)}`),
+
+  payloads: (type: string) =>
+    _get<PayloadResult>(`/payloads?type=${encodeURIComponent(type)}`),
+
+  workflow: (target: string) =>
+    _get<WorkflowResult>(`/workflow?target=${encodeURIComponent(target)}`),
+
+  lastScan: () =>
+    _get<LastScanResult>('/last-scan'),
+
+  chat: (question: string) =>
+    _post<ChatResult>('/chat-assist', { question }),
+
+  expand: (domain: string) =>
+    _get<ExpandResult>(`/expand?domain=${encodeURIComponent(domain)}`),
+
+  endpoints: (url: string) =>
+    _get<EndpointsResult>(`/endpoints?url=${encodeURIComponent(url)}`),
+
+  params: (url: string) =>
+    _get<ParamsResult>(`/params?url=${encodeURIComponent(url)}`),
 }

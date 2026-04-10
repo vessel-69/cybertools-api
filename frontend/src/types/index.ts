@@ -67,12 +67,68 @@ export interface PayloadResult {
   smart_summary?: string[]
 }
 
+export interface SubdomainEntry {
+  subdomain: string
+  ip: string | null
+  live: boolean
+}
+
+export interface ExpandResult {
+  domain: string
+  sources: string[]
+  total_found: number
+  live_count: number
+  subdomains: SubdomainEntry[]
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface EndpointEntry {
+  path: string
+  url: string
+  status: number
+  size: number
+  type: 'api' | 'admin' | 'auth' | 'sensitive' | 'monitoring' | 'other'
+}
+
+export interface EndpointsResult {
+  target: string
+  paths_probed: number
+  endpoints_found: number
+  endpoints: EndpointEntry[]
+  all_results?: EndpointEntry[]
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface ParamEntry {
+  name: string
+  risk: 'high' | 'medium' | 'low'
+  test: string
+  url: string
+  status: number
+  size: number
+  interesting: boolean
+}
+
+export interface ParamsResult {
+  target: string
+  params_tested: number
+  interesting: ParamEntry[]
+  all_params: ParamEntry[]
+  high_risk: ParamEntry[]
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
 export interface WorkflowResult {
   target: string
   elapsed_seconds: number
   recon: ReconResult
   analysis: AnalyzeResult
   bb_scan: BBScanResult
+  endpoints: EndpointsResult
+  params: ParamsResult
   next_steps?: string[]
   smart_summary?: string[]
 }
@@ -80,7 +136,7 @@ export interface WorkflowResult {
 export interface LastScanResult {
   key: string
   timestamp: string
-  data: ReconResult | BBScanResult | WorkflowResult
+  data: ReconResult | BBScanResult | WorkflowResult | ExpandResult | EndpointsResult | ParamsResult
 }
 
 export interface ChatResult {
@@ -100,8 +156,11 @@ export type Command =
   | 'payloads'
   | 'last-scan'
   | 'chat'
+  | 'expand'
+  | 'endpoints'
+  | 'params'
 
-export type PayloadType = 'xss' | 'sqli' | 'lfi' | 'ssrf'
+export type PayloadType = 'xss' | 'sqli' | 'lfi' | 'ssrf' | 'open_redirect' | 'idor'
 
 export type AnyResult =
   | ReconResult
@@ -111,6 +170,20 @@ export type AnyResult =
   | WorkflowResult
   | LastScanResult
   | ChatResult
+  | ExpandResult
+  | EndpointsResult
+  | ParamsResult
+
+export interface AppState {
+  target: string
+  activeCmd: Command | null
+  result: AnyResult | null
+  loading: boolean
+  loadingMsg: string
+  error: string | null
+}
+
+// ── Stats shown in sidebar ────────────────────────────────────────────────────
 
 export interface ScanStats {
   ip: string

@@ -9,10 +9,13 @@ import ResultPanel from './components/ResultPanel'
 const DEFAULT_STATS: ScanStats = { ip: '—', status: '—', ssl: '—' }
 
 function extractStats(cmd: Command, data: AnyResult): ScanStats {
-  const recon =
-    cmd === 'recon'    ? (data as ReconResult) :
-    cmd === 'workflow' ? (data as WorkflowResult).recon :
-    null
+  if (!data) return DEFAULT_STATS
+
+  const recon = cmd === 'recon'
+    ? (data as ReconResult)
+    : cmd === 'workflow'
+    ? (data as WorkflowResult).recon
+    : null
 
   if (!recon) return DEFAULT_STATS
 
@@ -28,15 +31,15 @@ function extractStats(cmd: Command, data: AnyResult): ScanStats {
 }
 
 export default function App() {
-  const [target,       setTarget]       = useState('')
-  const [chatQ,        setChatQ]        = useState('')
-  const [payloadType,  setPayloadType]  = useState<PayloadType>('xss')
-  const [activeCmd,    setActiveCmd]    = useState<Command | null>(null)
-  const [result,       setResult]       = useState<AnyResult | null>(null)
-  const [loading,      setLoading]      = useState(false)
-  const [loadingMsg,   setLoadingMsg]   = useState('')
-  const [error,        setError]        = useState<string | null>(null)
-  const [stats,        setStats]        = useState<ScanStats>(DEFAULT_STATS)
+  const [target,      setTarget]      = useState('')
+  const [chatQ,       setChatQ]       = useState('')
+  const [payloadType, setPayloadType] = useState<PayloadType>('xss')
+  const [activeCmd,   setActiveCmd]   = useState<Command | null>(null)
+  const [result,      setResult]      = useState<AnyResult | null>(null)
+  const [loading,     setLoading]     = useState(false)
+  const [loadingMsg,  setLoadingMsg]  = useState('')
+  const [error,       setError]       = useState<string | null>(null)
+  const [stats,       setStats]       = useState<ScanStats>(DEFAULT_STATS)
 
   async function run(cmd: Command) {
     setLoading(true)
@@ -45,28 +48,35 @@ export default function App() {
     setActiveCmd(cmd)
 
     const msgs: Record<Command, string> = {
-      recon:       `Recon: ${target}`,
-      analyze:     `Analyzing: ${target}`,
-      'bb-scan':   `BB Scan: ${target}`,
-      workflow:    `Full workflow: ${target}`,
-      payloads:    `Loading ${payloadType.toUpperCase()} payloads…`,
-      'last-scan': 'Fetching last scan…',
-      chat:        `Asking: ${chatQ}`,
+      recon:      `Recon: ${target}`,
+      analyze:    `Analyzing: ${target}`,
+      'bb-scan':  `BB Scan: ${target}`,
+      workflow:   `Full workflow: ${target}`,
+      payloads:   `Loading ${payloadType.toUpperCase()} payloads…`,
+      'last-scan':'Fetching last scan…',
+      chat:       `Asking: ${chatQ}`,
+      expand:     `Expanding subdomains: ${target}`,
+      endpoints:  `Enumerating endpoints: ${target}`,
+      params:     `Probing parameters: ${target}`,
     }
     setLoadingMsg(msgs[cmd])
 
     try {
-      const url = target.startsWith('http') ? target : `https://${target}`
       let data: AnyResult
 
+      const url = target.startsWith('http') ? target : `https://${target}`
+
       switch (cmd) {
-        case 'recon':     data = await api.recon(target);         break
-        case 'analyze':   data = await api.analyze(url);          break
-        case 'bb-scan':   data = await api.bbScan(url);           break
-        case 'workflow':  data = await api.workflow(target);      break
-        case 'payloads':  data = await api.payloads(payloadType); break
-        case 'last-scan': data = await api.lastScan();            break
-        case 'chat':      data = await api.chat(chatQ);           break
+        case 'recon':     data = await api.recon(target);          break
+        case 'analyze':   data = await api.analyze(url);           break
+        case 'bb-scan':   data = await api.bbScan(url);            break
+        case 'workflow':  data = await api.workflow(target);       break
+        case 'payloads':  data = await api.payloads(payloadType);  break
+        case 'last-scan': data = await api.lastScan();             break
+        case 'chat':      data = await api.chat(chatQ);            break
+        case 'expand':    data = await api.expand(target);         break
+        case 'endpoints': data = await api.endpoints(url);         break
+        case 'params':    data = await api.params(url);            break
         default: return
       }
 
@@ -90,9 +100,9 @@ export default function App() {
         minHeight: 'calc(100vh - 49px)',
       }}>
         <LeftPanel
-          target={target}             onTargetChange={setTarget}
-          chatQ={chatQ}               onChatQChange={setChatQ}
-          payloadType={payloadType}   onPayloadTypeChange={setPayloadType}
+          target={target}          onTargetChange={setTarget}
+          chatQ={chatQ}            onChatQChange={setChatQ}
+          payloadType={payloadType} onPayloadTypeChange={setPayloadType}
           loading={loading}
           stats={stats}
           onRun={run}

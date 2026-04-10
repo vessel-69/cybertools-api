@@ -1,4 +1,4 @@
-# CyberTools API
+# ⚡ CyberTools API
 
 A versatile, high-performance security and developer utility API built with **FastAPI** and a **React + TypeScript** frontend.
 
