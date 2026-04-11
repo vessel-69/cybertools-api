@@ -90,7 +90,7 @@ npm run dev         # → http://localhost:5173 (proxies API to :8000)
 
 ---
 
-## 🖥 CLI
+## 🖥 LOCAL CLI
 
 ```bash
 python cli.py recon    example.com
