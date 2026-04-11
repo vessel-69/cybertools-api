@@ -4,12 +4,17 @@ interface NavbarProps {
   activeCmd: Command | null
 }
 
+const NAV_ITEMS: { label: string; href: string; newTab?: boolean }[] = [
+  { label: 'Docs',   href: '/docs',                                      newTab: true },
+  { label: 'GitHub', href: 'https://github.com/vessel-69/cybertools-api', newTab: true },
+]
+
 export default function Navbar({ activeCmd }: NavbarProps) {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
-      background: 'rgba(8,11,15,0.92)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(7,9,9,0.94)',
+      backdropFilter: 'blur(14px)',
       borderBottom: '1px solid var(--border)',
       padding: '12px 24px',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -20,7 +25,7 @@ export default function Navbar({ activeCmd }: NavbarProps) {
           fontSize: '1rem', fontWeight: 800,
           letterSpacing: 2, textTransform: 'uppercase' as const,
           color: 'var(--lime)',
-          textShadow: '0 0 20px var(--lime-glow)',
+          textShadow: '0 0 18px var(--lime-glow)',
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
           <span style={{
@@ -43,14 +48,11 @@ export default function Navbar({ activeCmd }: NavbarProps) {
       </div>
 
       <div style={{ display: 'flex', gap: 6 }}>
-        {[
-          { label: 'Docs',   href: '/docs' },
-          { label: 'GitHub', href: 'https://github.com/vessel-69/cybertools-api' },
-        ].map(item => (
+        {NAV_ITEMS.map(item => (
           <a
             key={item.label}
             href={item.href}
-            target={item.href.startsWith('http') ? '_blank' : undefined}
+            target={item.newTab ? '_blank' : undefined}
             rel="noreferrer"
             style={{
               padding: '5px 12px', borderRadius: 4,
@@ -58,11 +60,12 @@ export default function Navbar({ activeCmd }: NavbarProps) {
               color: 'var(--text-dim)', textDecoration: 'none',
               border: '1px solid transparent',
               textTransform: 'uppercase' as const,
+              transition: 'all 0.15s',
             }}
             onMouseEnter={e => {
               const el = e.currentTarget
               el.style.color = 'var(--lime)'
-              el.style.borderColor = 'var(--border)'
+              el.style.borderColor = 'var(--border-h)'
               el.style.background = 'var(--lime-dim)'
             }}
             onMouseLeave={e => {

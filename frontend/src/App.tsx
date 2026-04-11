@@ -19,7 +19,6 @@ function extractStats(cmd: Command, data: AnyResult): ScanStats {
     cmd === 'workflow-express'   ? (data as ExpressWorkflowResult).recon :
     cmd === 'workflow-bugbounty' ? (data as BugBountyWorkflowResult).recon :
     null
-
   if (!recon) return DEFAULT_STATS
   return {
     ip:     recon.ip ?? '—',
@@ -47,19 +46,19 @@ export default function App() {
     setActiveCmd(cmd)
 
     const msgs: Record<Command, string> = {
-      recon:               `Recon: ${target}`,
-      analyze:             `Analyzing: ${target}`,
-      'bb-scan':           `BB Scan: ${target}`,
-      workflow:            `Full workflow: ${target}`,
-      payloads:            `Loading ${payloadType.toUpperCase()} payloads…`,
-      'last-scan':         'Fetching last scan…',
-      expand:              `Expanding subdomains: ${target}`,
-      endpoints:           `Enumerating endpoints: ${target}`,
-      params:              `Probing parameters: ${target}`,
-      'workflow-express':  `Express workflow: ${target}`,
-      'workflow-bugbounty':`Bug bounty workflow: ${target}`,
+      recon:                `Recon: ${target}`,
+      analyze:              `Analyzing: ${target}`,
+      'bb-scan':            `BB Scan: ${target}`,
+      workflow:             `Full workflow: ${target}`,
+      payloads:             `Loading ${payloadType.toUpperCase()} payloads…`,
+      'last-scan':          'Fetching last scan…',
+      expand:               `Expanding subdomains: ${target}`,
+      endpoints:            `Enumerating endpoints: ${target}`,
+      params:               `Probing parameters: ${target}`,
+      'workflow-express':   `Express workflow: ${target}`,
+      'workflow-bugbounty': `Bug bounty workflow: ${target}`,
       'workflow-subdomains':`Subdomain workflow: ${target}`,
-      'workflow-api':      `API scan workflow: ${target}`,
+      'workflow-api':       `API scan workflow: ${target}`,
     }
     setLoadingMsg(msgs[cmd] ?? cmd)
 
@@ -100,7 +99,7 @@ export default function App() {
       <Navbar activeCmd={activeCmd} />
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '280px 1fr 320px',
+        gridTemplateColumns: '280px 1fr',
         minHeight: 'calc(100vh - 49px)',
       }}>
         <LeftPanel
@@ -118,8 +117,10 @@ export default function App() {
           error={error}
           activeCmd={activeCmd}
         />
-        <ChatPanel />
       </div>
+
+      {/* Floating chatbot — renders above everything */}
+      <ChatPanel />
     </div>
   )
 }
