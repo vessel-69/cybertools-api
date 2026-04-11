@@ -4,8 +4,14 @@
   padding: 0;
 }
 
+*::selection {
+  background: var(--lint-red);
+  color: var(--white);
+}
+
 :root {
   --bg:        #070909;
+  --white:     #fff;
   --surface:   #0d0f0f;
   --surface2:  #121515;
   --border:    rgba(220, 38, 38, 0.13);
@@ -17,6 +23,7 @@
   --red-dim:   rgba(248, 113, 113, 0.12);
   --yellow:    #fbbf24;
   --text:      #ddd5d5;
+  --lint-red: #f340409c;
   --text-dim:  #6b4a4a;
   --text-muted:#696363;
   --radius:    10px;
