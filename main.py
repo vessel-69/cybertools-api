@@ -16,9 +16,9 @@ from datetime import datetime
 
 app = FastAPI(
     title="CyberTools API",
-    description="A free utility API for common security and developer tasks.",
-    version="1.0.0",
-    docs_url=None,   # we serve custom /docs with dark mode toggle
+    description="A free utility API tool for common security especialized for Pentesters, Bug-Bounty Hunters, Red Teamers and developers.",
+    version="1.01.1",
+    docs_url=None
 )
 
 from routes.security import router as security_router
@@ -28,10 +28,9 @@ app.include_router(security_router)
 _SWAGGER_HTML = """<!DOCTYPE html>
 <html>
 <head>
-  <title>CyberTools API — Docs</title>
+  <title>Docs - CyberTools</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23070909' width='32' height='32' rx='4'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23e63030' stroke-width='1.8'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23e63030'/%3E%3Cline x1='16' y1='2' x2='16' y2='9' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='16' y1='23' x2='16' y2='30' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='2' y1='16' x2='9' y2='16' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='23' y1='16' x2='30' y2='16' stroke='%23e63030' stroke-width='1.8'/%3E%3C/svg%3E" />
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
   <style>
     :root { --toggle-bg: #1a1a1a; }
