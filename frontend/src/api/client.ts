@@ -2,6 +2,8 @@ import type {
   ReconResult, AnalyzeResult, BBScanResult,
   PayloadResult, WorkflowResult, LastScanResult, ChatResult,
   ExpandResult, EndpointsResult, ParamsResult,
+  ExpressWorkflowResult, BugBountyWorkflowResult,
+  SubdomainsWorkflowResult, ApiWorkflowResult, CacheStatus,
 } from '../types'
 
 async function _get<T>(path: string): Promise<T> {
@@ -52,4 +54,22 @@ export const api = {
 
   params: (url: string) =>
     _get<ParamsResult>(`/params?url=${encodeURIComponent(url)}`),
+
+  workflowExpress: (target: string) =>
+    _get<ExpressWorkflowResult>(`/workflows/express?target=${encodeURIComponent(target)}`),
+
+  workflowBugBounty: (target: string) =>
+    _get<BugBountyWorkflowResult>(`/workflows/bugbounty?target=${encodeURIComponent(target)}`),
+
+  workflowSubdomains: (domain: string) =>
+    _get<SubdomainsWorkflowResult>(`/workflows/subdomains?domain=${encodeURIComponent(domain)}`),
+
+  workflowApi: (url: string) =>
+    _get<ApiWorkflowResult>(`/workflows/api?url=${encodeURIComponent(url)}`),
+
+  cacheStatus: () =>
+    _get<CacheStatus>('/workflows/cache/status'),
+
+  clearCache: () =>
+    _post<{ cleared: number; message: string }>('/workflows/cache', {}),
 }

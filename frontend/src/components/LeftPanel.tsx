@@ -6,8 +6,6 @@ interface LeftPanelProps {
   onTargetChange: (v: string) => void
   loading: boolean
   stats: ScanStats
-  chatQ: string
-  onChatQChange: (v: string) => void
   payloadType: PayloadType
   onPayloadTypeChange: (v: PayloadType) => void
   onRun: (cmd: Command) => void
@@ -22,35 +20,49 @@ function Btn({
   onClick: () => void
 }) {
   const [hov, setHov] = useState(false)
-  const isActive = active || hov
-
+  const lit = active || hov || primary
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       style={{
         gridColumn: full ? '1 / -1' : undefined,
-        padding: '10px 8px',
-        borderRadius: 'var(--radius)',
+        padding: '9px 8px',
+        borderRadius: 8,
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: '0.72rem', letterSpacing: 1,
-        textTransform: 'uppercase',
+        fontSize: '0.7rem', letterSpacing: 1,
+        textTransform: 'uppercase' as const,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        border: `1px solid ${isActive || primary ? 'var(--border-h)' : 'var(--border)'}`,
-        background: isActive || primary ? 'var(--lime-dim)' : 'var(--surface)',
-        color: isActive || primary ? 'var(--lime)' : 'var(--text-dim)',
-        boxShadow: isActive ? '0 0 12px var(--lime-dim)' : 'none',
-        opacity: disabled ? 0.4 : 1,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-        width: '100%',
-        transition: 'all 0.15s',
+        border: `1px solid ${lit ? 'var(--border-h)' : 'var(--border)'}`,
+        background: lit ? 'var(--lime-dim)' : 'var(--surface)',
+        color: lit ? 'var(--lime)' : 'var(--text-dim)',
+        boxShadow: active ? '0 0 10px var(--lime-dim)' : 'none',
+        opacity: disabled ? 0.38 : 1,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+        width: '100%', transition: 'all 0.15s',
       }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
     >
-      <span>{icon}</span>
+      <span style={{ fontSize: '0.75rem' }}>{icon}</span>
       <span>{label}</span>
     </button>
+  )
+}
+
+function Divider() {
+  return <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }} />
+}
+
+function SectionLabel({ label }: { label: string }) {
+  return (
+    <div style={{
+      fontSize: '0.58rem', letterSpacing: 3,
+      textTransform: 'uppercase' as const,
+      color: 'var(--text-muted)', marginBottom: 7,
+    }}>
+      {label}
+    </div>
   )
 }
 
@@ -58,13 +70,11 @@ function StatPill({ label, value }: { label: string; value: string }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '6px 10px',
-      background: 'var(--surface2)',
-      borderRadius: 6,
-      border: '1px solid var(--border)',
-      fontSize: '0.7rem',
+      padding: '5px 10px',
+      background: 'var(--surface2)', borderRadius: 6,
+      border: '1px solid var(--border)', fontSize: '0.68rem',
     }}>
-      <span style={{ color: 'var(--text-muted)', letterSpacing: 1, textTransform: 'uppercase' }}>{label}</span>
+      <span style={{ color: 'var(--text-muted)', letterSpacing: 1, textTransform: 'uppercase' as const }}>{label}</span>
       <span style={{ color: value === '—' ? 'var(--text-muted)' : 'var(--lime)', fontWeight: 500 }}>{value}</span>
     </div>
   )
@@ -73,60 +83,49 @@ function StatPill({ label, value }: { label: string; value: string }) {
 const PAYLOAD_TYPES: PayloadType[] = ['xss', 'sqli', 'lfi', 'ssrf', 'open_redirect', 'idor']
 
 export default function LeftPanel({
-  target, onTargetChange, loading, stats,
-  chatQ, onChatQChange,
+  target, onTargetChange,
+  loading, stats,
   payloadType, onPayloadTypeChange,
   onRun, activeCmd,
 }: LeftPanelProps) {
+  const [focused, setFocused] = useState(false)
+
   return (
     <aside style={{
       borderRight: '1px solid var(--border)',
-      padding: '24px 20px',
-      display: 'flex', flexDirection: 'column', gap: 20,
+      padding: '20px 16px',
+      display: 'flex', flexDirection: 'column', gap: 16,
       position: 'sticky', top: 49,
       height: 'calc(100vh - 49px)',
       overflowY: 'auto',
     }}>
-      {/* Target input */}
+
+      {/* Target */}
       <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Target
-        </div>
+        <SectionLabel label="Target" />
         <input
           type="text"
           placeholder="example.com"
           value={target}
           onChange={e => onTargetChange(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && onRun('recon')}
+          onKeyDown={e => e.key === 'Enter' && target && onRun('recon')}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           style={{
-            width: '100%',
-            background: 'var(--surface2)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            padding: '10px 14px',
-            color: 'var(--lime)',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.82rem',
-            outline: 'none',
-            caretColor: 'var(--lime)',
-          }}
-          onFocus={e => {
-            e.target.style.borderColor = 'var(--border-h)'
-            e.target.style.boxShadow = '0 0 0 3px var(--lime-dim), 0 0 20px var(--lime-dim)'
-          }}
-          onBlur={e => {
-            e.target.style.borderColor = 'var(--border)'
-            e.target.style.boxShadow = 'none'
+            width: '100%', background: 'var(--surface2)',
+            border: `1px solid ${focused ? 'var(--border-h)' : 'var(--border)'}`,
+            boxShadow: focused ? '0 0 0 2px var(--lime-dim)' : 'none',
+            borderRadius: 8, padding: '9px 12px',
+            color: 'var(--lime)', fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '0.8rem', outline: 'none', caretColor: 'var(--lime)',
           }}
         />
       </div>
 
-      {/* Action buttons */}
+      {/* Main Commands */}
       <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Commands
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <SectionLabel label="Commands" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
           <Btn label="Workflow" icon="⚡" full primary
             active={activeCmd === 'workflow'} disabled={loading || !target}
             onClick={() => onRun('workflow')} />
@@ -145,14 +144,33 @@ export default function LeftPanel({
         </div>
       </div>
 
-      <div style={{ height: 1, background: 'var(--border)' }} />
+      <Divider />
+
+      {/* Workflow Variants */}
+      <div>
+        <SectionLabel label="Workflows" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+          <Btn label="Express" icon="🚀"
+            active={activeCmd === 'workflow-express'} disabled={loading || !target}
+            onClick={() => onRun('workflow-express')} />
+          <Btn label="Bug Bounty" icon="◉"
+            active={activeCmd === 'workflow-bugbounty'} disabled={loading || !target}
+            onClick={() => onRun('workflow-bugbounty')} />
+          <Btn label="Subdomains" icon="⊹"
+            active={activeCmd === 'workflow-subdomains'} disabled={loading || !target}
+            onClick={() => onRun('workflow-subdomains')} />
+          <Btn label="API Scan" icon="⊠"
+            active={activeCmd === 'workflow-api'} disabled={loading || !target}
+            onClick={() => onRun('workflow-api')} />
+        </div>
+      </div>
+
+      <Divider />
 
       {/* Recon Tools */}
       <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Recon Tools
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <SectionLabel label="Recon Tools" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
           <Btn label="Expand" icon="⊞" full
             active={activeCmd === 'expand'} disabled={loading || !target}
             onClick={() => onRun('expand')} />
@@ -165,18 +183,18 @@ export default function LeftPanel({
         </div>
       </div>
 
+      <Divider />
+
       {/* Payloads */}
       <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Payloads
-        </div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+        <SectionLabel label="Payloads" />
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 7 }}>
           {PAYLOAD_TYPES.map(pt => (
             <button key={pt} onClick={() => onPayloadTypeChange(pt)}
               style={{
-                padding: '4px 10px', borderRadius: 4,
-                fontSize: '0.68rem', letterSpacing: 1,
-                textTransform: 'uppercase',
+                padding: '3px 8px', borderRadius: 4,
+                fontSize: '0.62rem', letterSpacing: 0.5,
+                textTransform: 'uppercase' as const,
                 border: `1px solid ${payloadType === pt ? 'var(--border-h)' : 'var(--border)'}`,
                 background: payloadType === pt ? 'var(--lime-dim)' : 'transparent',
                 color: payloadType === pt ? 'var(--lime)' : 'var(--text-muted)',
@@ -185,62 +203,23 @@ export default function LeftPanel({
             >{pt}</button>
           ))}
         </div>
-        <Btn label={`Get ${payloadType.toUpperCase()} Payloads`} icon="◇" full
-          disabled={loading} onClick={() => onRun('payloads')} />
+        <Btn label={`Get ${payloadType.toUpperCase()}`} icon="◇" full
+          active={activeCmd === 'payloads'} disabled={loading}
+          onClick={() => onRun('payloads')} />
       </div>
 
-      <div style={{ height: 1, background: 'var(--border)' }} />
-
-      {/* Chat */}
-      <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Ask Assistant
-        </div>
-        <input
-          type="text"
-          placeholder="What should I test?"
-          value={chatQ}
-          onChange={e => onChatQChange(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && onRun('chat')}
-          style={{
-            width: '100%',
-            background: 'var(--surface2)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            padding: '10px 14px',
-            color: 'var(--lime)',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.78rem',
-            outline: 'none',
-            caretColor: 'var(--lime)',
-            marginBottom: 8,
-          }}
-          onFocus={e => {
-            e.target.style.borderColor = 'var(--border-h)'
-            e.target.style.boxShadow = '0 0 0 3px var(--lime-dim)'
-          }}
-          onBlur={e => {
-            e.target.style.borderColor = 'var(--border)'
-            e.target.style.boxShadow = 'none'
-          }}
-        />
-        <Btn label="Ask" icon="▸" full
-          disabled={loading || !chatQ.trim()} onClick={() => onRun('chat')} />
-      </div>
-
-      <div style={{ height: 1, background: 'var(--border)' }} />
+      <Divider />
 
       {/* Stats */}
       <div>
-        <div style={{ fontSize: '0.6rem', letterSpacing: 3, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-          Last Scan Stats
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <StatPill label="IP" value={stats.ip} />
+        <SectionLabel label="Last Scan Stats" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <StatPill label="IP"     value={stats.ip} />
           <StatPill label="Status" value={stats.status} />
-          <StatPill label="SSL" value={stats.ssl} />
+          <StatPill label="SSL"    value={stats.ssl} />
         </div>
       </div>
+
     </aside>
   )
 }

@@ -5,20 +5,20 @@
 }
 
 :root {
-  --bg:        #080b0f;
-  --surface:   #0c1117;
-  --surface2:  #111820;
-  --border:    rgba(130, 255, 80, 0.1);
-  --border-h:  rgba(130, 255, 80, 0.3);
-  --lime:      #82ff50;
-  --lime-dim:  rgba(130, 255, 80, 0.08);
-  --lime-glow: rgba(130, 255, 80, 0.2);
-  --red:       #ff3b3b;
-  --red-dim:   rgba(255, 59, 59, 0.1);
-  --yellow:    #ffe066;
-  --text:      #d4e0cc;
-  --text-dim:  #6a8060;
-  --text-muted:#3a4d30;
+  --bg:        #070909;
+  --surface:   #0d0f0f;
+  --surface2:  #121515;
+  --border:    rgba(220, 38, 38, 0.13);
+  --border-h:  rgba(220, 38, 38, 0.38);
+  --lime:      #e63030;
+  --lime-dim:  rgba(220, 38, 38, 0.08);
+  --lime-glow: rgba(220, 38, 38, 0.22);
+  --red:       #f87171;
+  --red-dim:   rgba(248, 113, 113, 0.12);
+  --yellow:    #fbbf24;
+  --text:      #ddd5d5;
+  --text-dim:  #6b4a4a;
+  --text-muted:#3b2424;
   --radius:    10px;
 }
 
@@ -39,7 +39,7 @@ body::after {
   background: repeating-linear-gradient(
     0deg,
     transparent, transparent 2px,
-    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+    rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
   );
   pointer-events: none;
   z-index: 999;
@@ -50,8 +50,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(130,255,80,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(130,255,80,0.02) 1px, transparent 1px);
+    linear-gradient(rgba(220,38,38,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220,38,38,0.025) 1px, transparent 1px);
   background-size: 32px 32px;
   pointer-events: none;
   z-index: 0;
@@ -63,18 +63,18 @@ body::before {
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
+  50%       { opacity: 0.15; }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-.fade-in {
-  animation: fadeIn 0.25s ease forwards;
+@keyframes dots {
+  0%, 60%, 100% { opacity: 0.2; transform: scale(0.75); }
+  30%           { opacity: 1;   transform: scale(1); }
 }
+
+.fade-in { animation: fadeIn 0.25s ease forwards; }

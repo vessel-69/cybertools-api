@@ -2,6 +2,8 @@ import type {
   ReconResult, AnalyzeResult, BBScanResult,
   PayloadResult, WorkflowResult, LastScanResult, ChatResult,
   ExpandResult, EndpointsResult, ParamsResult,
+  ExpressWorkflowResult, BugBountyWorkflowResult,
+  SubdomainsWorkflowResult, ApiWorkflowResult,
 } from '../../types'
 import { KVRow, HintItem, SummaryItem, NextStep, PathRow, PayloadItem, Section } from '../ui/primitives'
 
@@ -363,6 +365,193 @@ export function ParamsSection({ d }: { d: ParamsResult }) {
         </Section>
       ) : null}
 
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Express Workflow ──────────────────────────────────────────────────────────
+
+export function ExpressWorkflowSection({ d }: { d: ExpressWorkflowResult }) {
+  return (
+    <div className="fade-in">
+      <Section title={`◉ Express Workflow — ${d.target}`}>
+        <KVRow label="Mode"    value="Express (Recon + Analyze)" />
+        <KVRow label="Elapsed" value={`${d.elapsed_seconds}s`} tone="good" />
+        {d.recon?.ip         && <KVRow label="IP"       value={d.recon.ip} tone="good" />}
+        {d.recon?.status_code && <KVRow label="Status"  value={d.recon.status_code} />}
+        {d.recon?.protocol   && <KVRow label="Protocol" value={d.recon.protocol.toUpperCase()} />}
+      </Section>
+      {d.recon?.ssl && (
+        <Section title="◉ SSL">
+          <KVRow label="Valid"   value={d.recon.ssl.valid ? 'Yes' : 'No'} tone={d.recon.ssl.valid ? 'good' : 'bad'} />
+          <KVRow label="Expires" value={d.recon.ssl.expires} />
+          <KVRow label="Days"    value={d.recon.ssl.days_remaining} tone={d.recon.ssl.days_remaining && d.recon.ssl.days_remaining > 30 ? 'good' : 'bad'} />
+        </Section>
+      )}
+      {d.analysis?.misconfig_hints?.length ? (
+        <Section title="◉ Misconfigurations">
+          {d.analysis.misconfig_hints.map((h, i) => <HintItem key={i} text={h} />)}
+        </Section>
+      ) : null}
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Bug Bounty Workflow ───────────────────────────────────────────────────────
+
+export function BugBountyWorkflowSection({ d }: { d: BugBountyWorkflowResult }) {
+  return (
+    <div className="fade-in">
+      <Section title={`◉ Bug Bounty Workflow — ${d.target}`}>
+        <KVRow label="Mode"    value="Bug Bounty (Recon + Scan + Payloads)" />
+        <KVRow label="Elapsed" value={`${d.elapsed_seconds}s`} tone="good" />
+        {d.recon?.ip && <KVRow label="IP" value={d.recon.ip} tone="good" />}
+      </Section>
+      {d.bb_scan?.interesting_paths?.length ? (
+        <Section title={`◉ Interesting Paths (${d.bb_scan.interesting_paths.length})`}>
+          {d.bb_scan.interesting_paths.map((p, i) => (
+            <PathRow key={i} path={p.path} status={p.status as number} />
+          ))}
+        </Section>
+      ) : null}
+      {d.recommended_payloads?.length ? (
+        <Section title="◉ Recommended Payload Types">
+          {d.recommended_payloads.map((pt, i) => (
+            <div key={i} style={{ padding: '4px 0', fontSize: '0.74rem', display: 'flex', gap: 8 }}>
+              <span style={{ color: 'var(--lime)' }}>◇</span>
+              <span style={{ color: 'var(--text)', textTransform: 'uppercase', letterSpacing: 1 }}>{pt}</span>
+            </div>
+          ))}
+        </Section>
+      ) : null}
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Subdomains Workflow ───────────────────────────────────────────────────────
+
+export function SubdomainsWorkflowSection({ d }: { d: SubdomainsWorkflowResult }) {
+  const live = d.expansion?.subdomains?.filter(s => s.live) ?? []
+  const reconEntries = Object.entries(d.subdomain_recons ?? {})
+
+  return (
+    <div className="fade-in">
+      <Section title={`◉ Subdomains Workflow — ${d.domain}`}>
+        <KVRow label="Mode"        value="Subdomain Enumeration + Recon" />
+        <KVRow label="Elapsed"     value={`${d.elapsed_seconds}s`} tone="good" />
+        <KVRow label="Live found"  value={d.expansion?.live_count ?? 0} tone={d.expansion?.live_count ? 'good' : 'warn'} />
+        <KVRow label="Sources"     value={d.expansion?.sources?.join(', ')} />
+      </Section>
+      {live.length > 0 && (
+        <Section title={`◉ Live Subdomains (${live.length})`}>
+          {live.map((s, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '0.74rem', borderBottom: '1px solid var(--border)' }}>
+              <span style={{ color: 'var(--lime)' }}>● {s.subdomain}</span>
+              <span style={{ color: 'var(--text-muted)' }}>{s.ip}</span>
+            </div>
+          ))}
+        </Section>
+      )}
+      {reconEntries.length > 0 && (
+        <Section title={`◉ Subdomain Recon Results (${reconEntries.length})`} defaultOpen={false}>
+          {reconEntries.map(([sub, r], i) => (
+            <div key={i} style={{ marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '0.72rem', color: 'var(--lime)', marginBottom: 4, fontWeight: 600 }}>{sub}</div>
+              <KVRow label="IP"     value={r.ip} />
+              <KVRow label="Status" value={r.status_code} />
+              {r.missing_security_headers?.length ? <HintItem text={`${r.missing_security_headers.length} header(s) missing`} /> : null}
+            </div>
+          ))}
+        </Section>
+      )}
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
+      {d.next_steps?.length ? (
+        <Section title="◉ Next Steps">
+          {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}
+        </Section>
+      ) : null}
+    </div>
+  )
+}
+
+// ── API Workflow ──────────────────────────────────────────────────────────────
+
+export function ApiWorkflowSection({ d }: { d: ApiWorkflowResult }) {
+  const apiEps = d.endpoints?.endpoints?.filter(ep => ep.type === 'api') ?? []
+  const adminEps = d.endpoints?.endpoints?.filter(ep => ep.type === 'admin') ?? []
+  const sensitiveEps = d.endpoints?.endpoints?.filter(ep => ep.type === 'sensitive') ?? []
+
+  return (
+    <div className="fade-in">
+      <Section title={`◉ API Scan Workflow — ${d.target}`}>
+        <KVRow label="Mode"              value="Endpoint Enum + Param Probing" />
+        <KVRow label="Elapsed"           value={`${d.elapsed_seconds}s`} tone="good" />
+        <KVRow label="API endpoints"     value={d.api_endpoints_found} tone={d.api_endpoints_found > 0 ? 'good' : undefined} />
+        <KVRow label="Total endpoints"   value={d.endpoints?.endpoints_found ?? 0} />
+        <KVRow label="Injectable params" value={d.params?.interesting?.length ?? 0} tone={d.params?.interesting?.length ? 'warn' : undefined} />
+      </Section>
+      {apiEps.length > 0 && (
+        <Section title={`◉ API Endpoints (${apiEps.length})`}>
+          {apiEps.map((ep, i) => <PathRow key={i} path={ep.path} status={ep.status} />)}
+        </Section>
+      )}
+      {sensitiveEps.length > 0 && (
+        <Section title={`◉ Sensitive Paths (${sensitiveEps.length})`}>
+          {sensitiveEps.map((ep, i) => <HintItem key={i} text={`${ep.path} → ${ep.status}`} tone="bad" />)}
+        </Section>
+      )}
+      {adminEps.length > 0 && (
+        <Section title={`◉ Admin Panels (${adminEps.length})`}>
+          {adminEps.map((ep, i) => <HintItem key={i} text={`${ep.path} → ${ep.status}`} tone="warn" />)}
+        </Section>
+      )}
+      {d.params?.interesting?.length ? (
+        <Section title={`◉ Injectable Parameters (${d.params.interesting.length})`}>
+          {d.params.interesting.map((p, i) => (
+            <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 3 }}>
+                <span style={{ color: p.risk === 'high' ? 'var(--red)' : 'var(--yellow)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: 1 }}>[{p.risk}]</span>
+                <code style={{ color: 'var(--lime)', fontSize: '0.76rem' }}>?{p.name}=FUZZ</code>
+              </div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', paddingLeft: 4 }}>↳ {p.test}</div>
+            </div>
+          ))}
+        </Section>
+      ) : null}
+      {d.smart_summary?.length ? (
+        <Section title="◉ Smart Summary">
+          {d.smart_summary.map((s, i) => <SummaryItem key={i} text={s} />)}
+        </Section>
+      ) : null}
       {d.next_steps?.length ? (
         <Section title="◉ Next Steps">
           {d.next_steps.map((s, i) => <NextStep key={i} index={i + 1} text={s} />)}

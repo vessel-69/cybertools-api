@@ -148,6 +148,65 @@ export interface ChatResult {
 
 // ── App state types ───────────────────────────────────────────────────────────
 
+export interface ChatMessage {
+  id: number
+  role: 'user' | 'assistant'
+  lines: string[]
+  tip?: string
+  timestamp: string
+  isLoading?: boolean
+}
+
+export interface ExpressWorkflowResult {
+  mode: 'express'
+  target: string
+  elapsed_seconds: number
+  recon: ReconResult
+  analysis: AnalyzeResult
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface BugBountyWorkflowResult {
+  mode: 'bugbounty'
+  target: string
+  elapsed_seconds: number
+  recon: ReconResult
+  bb_scan: BBScanResult
+  recommended_payloads: string[]
+  payloads: Record<string, PayloadResult>
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface SubdomainsWorkflowResult {
+  mode: 'subdomains'
+  domain: string
+  elapsed_seconds: number
+  expansion: ExpandResult
+  subdomain_recons: Record<string, ReconResult>
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface ApiWorkflowResult {
+  mode: 'api'
+  target: string
+  elapsed_seconds: number
+  endpoints: EndpointsResult
+  params: ParamsResult
+  api_endpoints_found: number
+  smart_summary?: string[]
+  next_steps?: string[]
+}
+
+export interface CacheStatus {
+  total_entries: number
+  active_entries: number
+  expired_entries: number
+  keys: string[]
+}
+
 export type Command =
   | 'recon'
   | 'analyze'
@@ -155,10 +214,13 @@ export type Command =
   | 'workflow'
   | 'payloads'
   | 'last-scan'
-  | 'chat'
   | 'expand'
   | 'endpoints'
   | 'params'
+  | 'workflow-express'
+  | 'workflow-bugbounty'
+  | 'workflow-subdomains'
+  | 'workflow-api'
 
 export type PayloadType = 'xss' | 'sqli' | 'lfi' | 'ssrf' | 'open_redirect' | 'idor'
 
@@ -173,6 +235,10 @@ export type AnyResult =
   | ExpandResult
   | EndpointsResult
   | ParamsResult
+  | ExpressWorkflowResult
+  | BugBountyWorkflowResult
+  | SubdomainsWorkflowResult
+  | ApiWorkflowResult
 
 export interface AppState {
   target: string
