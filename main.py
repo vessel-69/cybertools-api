@@ -37,6 +37,10 @@ _SWAGGER_HTML = """<!DOCTYPE html>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
   <style>
+    *::selection {
+        background: #f340409c;;
+        color: #fff;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --bg:#070909;--surface:#0d0f0f;--surface2:#121515;
