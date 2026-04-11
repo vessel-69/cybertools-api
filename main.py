@@ -18,11 +18,85 @@ app = FastAPI(
     title="CyberTools API",
     description="A free utility API for common security and developer tasks.",
     version="1.0.0",
-    docs_url="/docs",
+    docs_url=None,   # we serve custom /docs with dark mode toggle
 )
 
 from routes.security import router as security_router
 app.include_router(security_router)
+
+
+_SWAGGER_HTML = """<!DOCTYPE html>
+<html>
+<head>
+  <title>CyberTools API — Docs</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23070909' width='32' height='32' rx='4'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23e63030' stroke-width='1.8'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23e63030'/%3E%3Cline x1='16' y1='2' x2='16' y2='9' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='16' y1='23' x2='16' y2='30' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='2' y1='16' x2='9' y2='16' stroke='%23e63030' stroke-width='1.8'/%3E%3Cline x1='23' y1='16' x2='30' y2='16' stroke='%23e63030' stroke-width='1.8'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+  <style>
+    :root { --toggle-bg: #1a1a1a; }
+    body { margin: 0; }
+    #theme-btn {
+      position: fixed; top: 14px; right: 16px; z-index: 9999;
+      padding: 6px 14px; border-radius: 6px; cursor: pointer;
+      font-family: monospace; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid #e63030; background: #0d0f0f;
+      color: #e63030; letter-spacing: 1px; text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    #theme-btn:hover { background: #e63030; color: #fff; }
+    body.dark .swagger-ui .topbar { background: #0d0f0f; border-bottom: 1px solid #2a0a0a; }
+    body.dark .swagger-ui { background: #070909; color: #ddd5d5; }
+    body.dark .swagger-ui .info .title, body.dark .swagger-ui .info p { color: #ddd5d5; }
+    body.dark .swagger-ui .opblock-tag { color: #e63030; border-bottom-color: #2a0a0a; }
+    body.dark .swagger-ui .opblock { background: #0d0f0f; border-color: #1e0808; }
+    body.dark .swagger-ui .opblock .opblock-summary { background: #111515; }
+    body.dark .swagger-ui .opblock-description-wrapper p,
+    body.dark .swagger-ui .opblock-external-docs-wrapper p,
+    body.dark .swagger-ui .opblock-title_normal p { color: #aaa; }
+    body.dark .swagger-ui .responses-inner h4,
+    body.dark .swagger-ui .responses-inner h5 { color: #ddd5d5; }
+    body.dark .swagger-ui section.models { background: #0d0f0f; border-color: #1e0808; }
+    body.dark .swagger-ui .model-container { background: #111515; }
+    body.dark .swagger-ui input, body.dark .swagger-ui textarea,
+    body.dark .swagger-ui select { background: #121515; color: #ddd5d5; border-color: #2a0a0a; }
+    body.dark .swagger-ui .btn { color: #e63030; border-color: #e63030; }
+    body.dark .swagger-ui .btn.execute { background: #e63030; color: #fff; }
+    body.dark .swagger-ui table thead tr td, body.dark .swagger-ui table thead tr th { color: #aaa; border-color: #2a0a0a; }
+    body.dark .swagger-ui .parameter__name { color: #e63030; }
+    body.dark .swagger-ui .parameter__type { color: #aaa; }
+    body.dark .swagger-ui .tab li { color: #aaa; }
+    body.dark .swagger-ui .scheme-container { background: #0d0f0f; box-shadow: none; border-bottom: 1px solid #1e0808; }
+    body.dark #swagger-ui { background: #070909; }
+    body.dark .swagger-ui .wrapper { background: #070909; }
+  </style>
+</head>
+<body class="dark">
+  <button id="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    let dark = true;
+    function toggleTheme() {
+      dark = !dark;
+      document.body.className = dark ? 'dark' : '';
+      document.getElementById('theme-btn').textContent = dark ? '☀ Light' : '☾ Dark';
+    }
+    SwaggerUIBundle({
+      url: '/openapi.json',
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+      layout: 'BaseLayout',
+      deepLinking: true,
+    });
+  </script>
+</body>
+</html>"""
+
+
+@app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
+def custom_docs():
+    return HTMLResponse(content=_SWAGGER_HTML)
 
 
 # ─── Models ────────────────────────────────────────────────────────────────────
