@@ -9,6 +9,11 @@
   color: var(--white);
 }
 
+*::-moz-selection{
+   background: var(--lint-red);
+  color: var(--white);
+}
+
 :root {
   --bg:        #070909;
   --white:     #fff;
