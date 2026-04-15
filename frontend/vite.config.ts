@@ -5,6 +5,7 @@ const API_ROUTES = [
   '/recon', '/analyze-url', '/bb-scan', '/payloads',
   '/workflow', '/workflows', '/last-scan', '/chat-assist',
   '/hash', '/encode', '/decode', '/password', '/ip', '/time', '/docs',
+  '/api', '/expand', '/endpoints', '/params',
 ]
 
 export default defineConfig({

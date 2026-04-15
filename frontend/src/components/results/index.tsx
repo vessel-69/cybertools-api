@@ -28,7 +28,7 @@ export function ReconSection({ d }: { d: ReconResult }) {
 
       <Section title="◉ Security Headers">
         {d.missing_security_headers?.length
-          ? d.missing_security_headers.map(h => <HintItem key={h} text={`Missing: ${h}`} />)
+          ? d.missing_security_headers.map(h => <HintItem key={h} text={`Missing: ${h}`} tone="missing" />)
           : <HintItem text="All major security headers present." tone="ok" />}
       </Section>
 
