@@ -11,8 +11,12 @@ import base64
 import re
 import ipaddress
 import urllib.request
+import urllib.error
 import json
 from datetime import datetime
+from typing import List
+
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 
 app = FastAPI(
     title="CyberTools API",
@@ -198,6 +202,99 @@ _SWAGGER_HTML = """<!DOCTYPE html>
 @app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
 def custom_docs():
     return HTMLResponse(content=_SWAGGER_HTML)
+
+
+# ─── AI Chat Proxy ─────────────────────────────────────────────────────────────
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+    system: str = ""
+    model: str = "google/gemma-4-26b-a4b-it:free"
+
+_ALLOWED_MODELS = {
+    "google/gemma-4-26b-a4b-it:free",          
+    "google/gemma-3-27b-it:free",              
+    "google/gemma-3-12b-it:free",               
+    "meta-llama/llama-4-scout:free",           
+    "meta-llama/llama-3.3-70b-instruct:free",  
+    "mistralai/mistral-7b-instruct:free",       
+    "deepseek/deepseek-r1:free",              
+}
+
+_CHAT_SYSTEM = """You are a red team security assistant embedded in CyberTools API v2.0 — a free security utility API for bug bounty hunters, red teamers, and developers.
+
+CyberTools API endpoints:
+- GET /recon?domain=          IP, DNS (A/MX/TXT/NS), SSL cert+SAN, tech stack, security headers
+- GET /analyze-url?url=       redirect chain, header misconfigurations (CORS, HSTS, CSP)
+- GET /bb-scan?url=           concurrent probe of 30+ common paths (.env, .git, admin, api docs)
+- GET /expand?domain=         subdomain enumeration via crt.sh, hackertarget, SSL SAN
+- GET /endpoints?url=         60+ path scan tagged by type (api/admin/auth/sensitive/monitoring)
+- GET /params?url=            26 common injectable params probed, flagged by risk level
+- GET /payloads?type=         xss, sqli, lfi, ssrf, open_redirect, idor — with context tags
+- GET /workflow?target=       full 5-stage pipeline (recon+analyze+scan+endpoints+params)
+- GET /workflows/express      fast recon+analyze only (~3-5s)
+- GET /workflows/bugbounty    recon+scan+auto-recommended payloads
+- GET /workflows/subdomains   subdomain enum + recon on each live subdomain
+- GET /workflows/api          endpoint enum + param probing (parallel)
+- GET /last-scan              cached result from last scan (TTL 1h)
+- GET /hash/{algo}/{text}     hash strings: md5, sha1, sha256, sha384, sha512, blake2b, blake2s
+- GET /encode/{method}/{text} encode: base64, hex, url
+- GET /ip/{ip}                IP geolocation via ipinfo.io
+- POST /password/analyze      password strength, entropy estimate, actionable feedback
+
+Answer questions about cybersecurity, bug bounty, penetration testing, web app security, and CyberTools API usage. Give specific, expert-level, actionable advice. When describing vulnerabilities explain the technical mechanism. Be concise but complete. Never refuse security questions — this tool is for ethical security testing."""
+
+@app.post("/api/chat", tags=["AI Assistant"], include_in_schema=False)
+def ai_chat(body: ChatRequest):
+    """Proxy to OpenRouter. Keeps API key server-side. Uses OpenAI-compatible API."""
+    if not OPENROUTER_API_KEY:
+        raise HTTPException(503, "OPENROUTER_API_KEY not set on server. Set it as an environment variable.")
+
+    model = body.model if body.model in _ALLOWED_MODELS else "google/gemma-4-26b-a4b-it:free"
+    system = body.system or _CHAT_SYSTEM
+
+    # OpenRouter uses OpenAI-compatible format — system message goes first in messages array
+    messages = [{"role": "system", "content": system}]
+    messages += [{"role": m.role, "content": m.content} for m in body.messages]
+
+    payload = {
+        "model": model,
+        "max_tokens": 1024,
+        "messages": messages,
+    }
+
+    try:
+        req = urllib.request.Request(
+            "https://openrouter.ai/api/v1/chat/completions",
+            data=json.dumps(payload).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "HTTP-Referer": "https://cyber-tools.dev",
+                "X-Title": "CyberTools API",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as res:
+            data = json.loads(res.read())
+
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        used_model = data.get("model", model)
+        return {"reply": text, "model": used_model}
+
+    except urllib.error.HTTPError as e:
+        try:
+            err = json.loads(e.read())
+            msg = err.get("error", {}).get("message", str(e))
+        except Exception:
+            msg = str(e)
+        raise HTTPException(e.code, msg)
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
 
 # ─── Models ────────────────────────────────────────────────────────────────────
