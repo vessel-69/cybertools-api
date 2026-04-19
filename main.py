@@ -330,8 +330,7 @@ Answer questions about cybersecurity, bug bounty, penetration testing, web app s
 
 
 @app.post("/api/chat", tags=["AI Assistant"], include_in_schema=False)
-def ai_chat(body: ChatRequest):
-    """Proxy to OpenRouter. Keeps API key server-side. Uses OpenAI-compatible API."""
+def ai_chat(body: ChatRequest, request: Request, _rl: None = Depends(limit_chat)):
     if not OPENROUTER_API_KEY:
         raise HTTPException(
             503,
@@ -345,8 +344,22 @@ def ai_chat(body: ChatRequest):
     )
     system = body.system or _CHAT_SYSTEM
 
+    if not body.messages:
+        raise HTTPException(400, "messages cannot be empty.")
+
+    cleaned_messages = []
+    for m in body.messages:
+        if m.role not in {"user", "assistant", "system"}:
+            raise HTTPException(400, "invalid chat role.")
+        cleaned_messages.append({
+            "role": m.role,
+            "content": clean_text(m.content, field="message")
+        })
+
+    system = clean_text(system, field="system", max_len=4000)
+
     messages = [{"role": "system", "content": system}]
-    messages += [{"role": m.role, "content": m.content} for m in body.messages]
+    messages += cleaned_messages
 
     payload = {
         "model": model,

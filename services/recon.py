@@ -1759,3 +1759,4 @@ def clear_cache() -> dict:
         count = len(_cache._store)
         _cache._store.clear()
     return {"cleared": count, "message": f"Cleared {count} cache entries."}
+    
