@@ -1,27 +1,37 @@
 import type {
-  ReconResult, AnalyzeResult, BBScanResult,
-  PayloadResult, WorkflowResult, LastScanResult, ChatResult,
-  ExpandResult, EndpointsResult, ParamsResult,
-  ExpressWorkflowResult, BugBountyWorkflowResult,
-  SubdomainsWorkflowResult, ApiWorkflowResult, CacheStatus,
-} from '../types'
+  ReconResult,
+  AnalyzeResult,
+  BBScanResult,
+  PayloadResult,
+  WorkflowResult,
+  LastScanResult,
+  ChatResult,
+  ExpandResult,
+  EndpointsResult,
+  ParamsResult,
+  ExpressWorkflowResult,
+  BugBountyWorkflowResult,
+  SubdomainsWorkflowResult,
+  ApiWorkflowResult,
+  CacheStatus,
+} from "../types";
 
 async function _get<T>(path: string): Promise<T> {
-  const res = await fetch(path)
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.detail ?? JSON.stringify(data))
-  return data as T
+  const res = await fetch(path);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail ?? JSON.stringify(data));
+  return data as T;
 }
 
 async function _post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.detail ?? JSON.stringify(data))
-  return data as T
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail ?? JSON.stringify(data));
+  return data as T;
 }
 
 export const api = {
@@ -40,11 +50,9 @@ export const api = {
   workflow: (target: string) =>
     _get<WorkflowResult>(`/workflow?target=${encodeURIComponent(target)}`),
 
-  lastScan: () =>
-    _get<LastScanResult>('/last-scan'),
+  lastScan: () => _get<LastScanResult>("/last-scan"),
 
-  chat: (question: string) =>
-    _post<ChatResult>('/chat-assist', { question }),
+  chat: (question: string) => _post<ChatResult>("/chat-assist", { question }),
 
   expand: (domain: string) =>
     _get<ExpandResult>(`/expand?domain=${encodeURIComponent(domain)}`),
@@ -56,20 +64,25 @@ export const api = {
     _get<ParamsResult>(`/params?url=${encodeURIComponent(url)}`),
 
   workflowExpress: (target: string) =>
-    _get<ExpressWorkflowResult>(`/workflows/express?target=${encodeURIComponent(target)}`),
+    _get<ExpressWorkflowResult>(
+      `/workflows/express?target=${encodeURIComponent(target)}`,
+    ),
 
   workflowBugBounty: (target: string) =>
-    _get<BugBountyWorkflowResult>(`/workflows/bugbounty?target=${encodeURIComponent(target)}`),
+    _get<BugBountyWorkflowResult>(
+      `/workflows/bugbounty?target=${encodeURIComponent(target)}`,
+    ),
 
   workflowSubdomains: (domain: string) =>
-    _get<SubdomainsWorkflowResult>(`/workflows/subdomains?domain=${encodeURIComponent(domain)}`),
+    _get<SubdomainsWorkflowResult>(
+      `/workflows/subdomains?domain=${encodeURIComponent(domain)}`,
+    ),
 
   workflowApi: (url: string) =>
     _get<ApiWorkflowResult>(`/workflows/api?url=${encodeURIComponent(url)}`),
 
-  cacheStatus: () =>
-    _get<CacheStatus>('/workflows/cache/status'),
+  cacheStatus: () => _get<CacheStatus>("/workflows/cache/status"),
 
   clearCache: () =>
-    _post<{ cleared: number; message: string }>('/workflows/cache', {}),
-}
+    _post<{ cleared: number; message: string }>("/workflows/cache", {}),
+};

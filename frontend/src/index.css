@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -9,84 +11,118 @@
   color: var(--white);
 }
 
-*::-moz-selection{
-   background: var(--lint-red);
+*::-moz-selection {
+  background: var(--lint-red);
   color: var(--white);
 }
 
 :root {
-  --bg:        #070909;
-  --white:     #fff;
-  --surface:   #0d0f0f;
-  --surface2:  #121515;
-  --border:    rgba(220, 38, 38, 0.13);
-  --border-h:  rgba(220, 38, 38, 0.38);
-  --lime:      #e63030;
-  --lime-dim:  rgba(220, 38, 38, 0.08);
+  --bg: #070909;
+  --white: #fff;
+  --surface: #0d0f0f;
+  --surface2: #121515;
+  --border: rgba(220, 38, 38, 0.13);
+  --border-h: rgba(220, 38, 38, 0.38);
+  --lime: #e63030;
+  --lime-dim: rgba(220, 38, 38, 0.08);
   --lime-glow: rgba(220, 38, 38, 0.22);
-  --red:       #f87171;
-  --red-dim:   rgba(248, 113, 113, 0.12);
-  --yellow:    #fbbf24;
-  --text:      #ddd5d5;
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24;
+  --text: #ddd5d5;
   --lint-red: #f340409c;
-  --text-dim:  #6b4a4a;
-  --text-muted:#696363;
-  --radius:    10px;
+  --text-dim: #6b4a4a;
+  --text-muted: #696363;
+  --radius: 10px;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
-    transparent, transparent 2px,
-    rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
   );
   pointer-events: none;
   z-index: 999;
 }
 
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(220,38,38,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(220,38,38,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(220, 38, 38, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(220, 38, 38, 0.025) 1px, transparent 1px);
   background-size: 32px 32px;
   pointer-events: none;
   z-index: 0;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-h);
+  border-radius: 2px;
+}
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.15; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes dots {
-  0%, 60%, 100% { opacity: 0.2; transform: scale(0.75); }
-  30%           { opacity: 1;   transform: scale(1); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.75);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.fade-in { animation: fadeIn 0.25s ease forwards; }
+.fade-in {
+  animation: fadeIn 0.25s ease forwards;
+}
