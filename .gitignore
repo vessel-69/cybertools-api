@@ -58,4 +58,6 @@ tmp/
 temp/
 .cache/
 *.bak
-*.backup
+*.backup.env
+.env.*
+!.env.example
