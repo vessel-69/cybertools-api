@@ -9,34 +9,82 @@ env/
 .Python
 pip-log.txt
 *.tslog
-
-# --- React / Frontend (CRITICAL) ---
-# This is likely where your 10k files are coming from
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+ 
+# Node / Frontend
 node_modules/
-frontend/node_modules/
 frontend/dist/
-.vite/
-*.local
-
-# --- Environment Variables ---
-.env
-.env.secret
-.env.*.local
-
-# --- Docker & Fly.io ---
-.dockerignore
-*.log
-.fly/
-
-# --- OS Specific ---
-.DS_Store
-.DS_Store?
-._*
-Thumbs.db
-desktop.ini
-
-# --- Editor Specific ---
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.pnpm-debug.log*
+ 
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+*.sublime-workspace
+*.sublime-project
+ 
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+ 
+# Logs
+*.log
+logs/
+ 
+# Local testing
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+.cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+ 
+# Misc
+tmp/
+temp/
+*.bak
+*.backup
+.cache/
