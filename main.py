@@ -1,8 +1,17 @@
 import sys, os
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
+from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
@@ -13,19 +22,87 @@ import ipaddress
 import urllib.request
 import urllib.error
 import json
+import logging
 from datetime import datetime
 from typing import List
 
+from services.validator import (
+    clean_hash_algo,
+    clean_encode_method,
+    clean_ip,
+    clean_password,
+    clean_text,
+    MAX_TEXT_LEN,
+)
+from services.limiter import limit_util, limit_chat
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("cybertools")
+
+
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+if not OPENROUTER_API_KEY:
+    logger.warning("OPENROUTER_API_KEY not set — AI chat will return 503.")
+
+# ─── Allowed origins for CORS ─────────────────────────────────────────────────
+
+_ALLOWED_ORIGINS = [
+    "https://www.cyber-tools.dev",
+    "https://www.cyber-tools.dev",
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
 
 app = FastAPI(
     title="CyberTools API",
-    description="A versatile FastAPI-powered toolkit made for security Operators, Red Teamers, Bug-Bounty Hunters, Pentesters, and Developers.",
+    description="A versatile FastAPI-powered toolkit for security operators, red teamers, bug-bounty hunters, pentesters, and developers.",
     version="2.0",
-    docs_url=None,   
+    docs_url=None,
 )
 
+# ─── CORS ─────────────────────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type"],
+)
+
+
+# ─── Security headers middleware ───────────────────────────────────────────────
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
+    response.headers["Strict-Transport-Security"] = (
+        "max-age=31536000; includeSubDomains"
+    )
+    for h in ("server", "x-powered-by"):
+        if h in response.headers:
+            del response.headers[h]
+    return response
+
+
+# ─── Global exception handler — never leak stack traces ───────────────────────
+@app.exception_handler(Exception)
+async def generic_error_handler(request: Request, exc: Exception):
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=getattr(exc, "headers", None) or {},
+        )
+    logger.exception("Unhandled error on %s", request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error."})
+
+
 from routes.security import router as security_router
+
 app.include_router(security_router)
 
 
@@ -204,25 +281,28 @@ def custom_docs():
     return HTMLResponse(content=_SWAGGER_HTML)
 
 
-# ─── AI Chat Proxy ─────────────────────────────────────────────────────────────
+# ─── AI Chat Proxy ──────────────────
+
 
 class ChatMessage(BaseModel):
     role: str
     content: str
 
+
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     system: str = ""
-    model: str = "google/gemma-4-26b-a4b-it:free"
+    model: str = "meta-llama/llama-3.3-70b-instruct:free"
+
 
 _ALLOWED_MODELS = {
-    "google/gemma-4-26b-a4b-it:free",          
-    "google/gemma-3-27b-it:free",              
-    "google/gemma-3-12b-it:free",               
-    "meta-llama/llama-4-scout:free",           
-    "meta-llama/llama-3.3-70b-instruct:free",  
-    "mistralai/mistral-7b-instruct:free",       
-    "deepseek/deepseek-r1:free",              
+    "google/gemma-4-26b-a4b-it:free",  # Gemma 4 26B — default, fast, capable
+    "google/gemma-3-27b-it:free",  # Gemma 3 27B — reliable fallback
+    "google/gemma-3-12b-it:free",  # Gemma 3 12B — faster/lighter
+    "meta-llama/llama-4-scout:free",  # Llama 4 Scout — Meta's latest
+    "meta-llama/llama-3.3-70b-instruct:free",  # Llama 3.3 70B — high quality
+    "mistralai/mistral-7b-instruct:free",  # Mistral 7B — lightweight/fast
+    "deepseek/deepseek-r1:free",  # DeepSeek R1 — reasoning model
 }
 
 _CHAT_SYSTEM = """You are a red team security assistant embedded in CyberTools API v2.0 — a free security utility API for bug bounty hunters, red teamers, and developers.
@@ -248,16 +328,23 @@ CyberTools API endpoints:
 
 Answer questions about cybersecurity, bug bounty, penetration testing, web app security, and CyberTools API usage. Give specific, expert-level, actionable advice. When describing vulnerabilities explain the technical mechanism. Be concise but complete. Never refuse security questions — this tool is for ethical security testing."""
 
+
 @app.post("/api/chat", tags=["AI Assistant"], include_in_schema=False)
 def ai_chat(body: ChatRequest):
     """Proxy to OpenRouter. Keeps API key server-side. Uses OpenAI-compatible API."""
     if not OPENROUTER_API_KEY:
-        raise HTTPException(503, "OPENROUTER_API_KEY not set on server. Set it as an environment variable.")
+        raise HTTPException(
+            503,
+            "OPENROUTER_API_KEY not set on server. Set it as an environment variable.",
+        )
 
-    model = body.model if body.model in _ALLOWED_MODELS else "google/gemma-4-26b-a4b-it:free"
+    model = (
+        body.model
+        if body.model in _ALLOWED_MODELS
+        else "google/gemma-4-26b-a4b-it:free"
+    )
     system = body.system or _CHAT_SYSTEM
 
-    # OpenRouter uses OpenAI-compatible format — system message goes first in messages array
     messages = [{"role": "system", "content": system}]
     messages += [{"role": m.role, "content": m.content} for m in body.messages]
 
@@ -274,7 +361,7 @@ def ai_chat(body: ChatRequest):
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "HTTP-Referer": "https://cyber-tools.dev",
+                "HTTP-Referer": "https://www.cyber-tools.dev",
                 "X-Title": "CyberTools API",
             },
             method="POST",
@@ -297,45 +384,68 @@ def ai_chat(body: ChatRequest):
         raise HTTPException(500, str(e))
 
 
-# ─── Models ────────────────────────────────────────────────────────────────────
+# ─── Models ────────────
+
 
 class HashRequest(BaseModel):
     text: str
     algorithm: str = "sha256"
 
+
 class EncodeRequest(BaseModel):
     text: str
     method: str = "base64"
+
 
 class PasswordAnalysisRequest(BaseModel):
     password: str
 
 
-# ─── Helpers ───────────────────────────────────────────────────────────────────
+# ─── Helpers ─────────────
 
-HASH_ALGORITHMS = ["md5", "sha1", "sha256", "sha384", "sha512", "sha3_256", "sha3_512", "blake2b", "blake2s"]
+HASH_ALGORITHMS = [
+    "md5",
+    "sha1",
+    "sha256",
+    "sha384",
+    "sha512",
+    "sha3_256",
+    "sha3_512",
+    "blake2b",
+    "blake2s",
+]
+
 
 def analyze_password(pw: str) -> dict:
     score = 0
     feedback = []
 
     checks = {
-        "length_8":     len(pw) >= 8,
-        "length_12":    len(pw) >= 12,
-        "length_16":    len(pw) >= 16,
-        "has_upper":    bool(re.search(r"[A-Z]", pw)),
-        "has_lower":    bool(re.search(r"[a-z]", pw)),
-        "has_digit":    bool(re.search(r"\d", pw)),
-        "has_special":  bool(re.search(r"[^A-Za-z0-9]", pw)),
-        "no_spaces":    " " not in pw,
-        "no_repeat":    not bool(re.search(r"(.)\1{2,}", pw)),
-        "no_sequence":  not any(seq in pw.lower() for seq in ["123", "abc", "qwerty", "password", "admin"]),
+        "length_8": len(pw) >= 8,
+        "length_12": len(pw) >= 12,
+        "length_16": len(pw) >= 16,
+        "has_upper": bool(re.search(r"[A-Z]", pw)),
+        "has_lower": bool(re.search(r"[a-z]", pw)),
+        "has_digit": bool(re.search(r"\d", pw)),
+        "has_special": bool(re.search(r"[^A-Za-z0-9]", pw)),
+        "no_spaces": " " not in pw,
+        "no_repeat": not bool(re.search(r"(.)\1{2,}", pw)),
+        "no_sequence": not any(
+            seq in pw.lower() for seq in ["123", "abc", "qwerty", "password", "admin"]
+        ),
     }
 
     weights = {
-        "length_8": 1, "length_12": 1, "length_16": 1,
-        "has_upper": 1, "has_lower": 1, "has_digit": 1, "has_special": 2,
-        "no_spaces": 0, "no_repeat": 1, "no_sequence": 1,
+        "length_8": 1,
+        "length_12": 1,
+        "length_16": 1,
+        "has_upper": 1,
+        "has_lower": 1,
+        "has_digit": 1,
+        "has_special": 2,
+        "no_spaces": 0,
+        "no_repeat": 1,
+        "no_sequence": 1,
     }
 
     for check, passed in checks.items():
@@ -343,15 +453,15 @@ def analyze_password(pw: str) -> dict:
             score += weights.get(check, 1)
         else:
             tips = {
-                "length_8":    "Use at least 8 characters.",
-                "length_12":   "Use at least 12 characters for better security.",
-                "length_16":   "16+ characters is ideal for strong passwords.",
-                "has_upper":   "Add uppercase letters (A-Z).",
-                "has_lower":   "Add lowercase letters (a-z).",
-                "has_digit":   "Include numbers.",
+                "length_8": "Use at least 8 characters.",
+                "length_12": "Use at least 12 characters for better security.",
+                "length_16": "16+ characters is ideal for strong passwords.",
+                "has_upper": "Add uppercase letters (A-Z).",
+                "has_lower": "Add lowercase letters (a-z).",
+                "has_digit": "Include numbers.",
                 "has_special": "Use special characters like !@#$%^&*.",
-                "no_spaces":   "Avoid spaces.",
-                "no_repeat":   "Avoid repeating characters (e.g. 'aaa').",
+                "no_spaces": "Avoid spaces.",
+                "no_repeat": "Avoid repeating characters (e.g. 'aaa').",
                 "no_sequence": "Avoid common sequences like '123' or 'password'.",
             }
             if check in tips:
@@ -360,11 +470,16 @@ def analyze_password(pw: str) -> dict:
     max_score = sum(weights.values())
     pct = score / max_score
 
-    if pct >= 0.85:   strength = "Very Strong"
-    elif pct >= 0.65: strength = "Strong"
-    elif pct >= 0.45: strength = "Moderate"
-    elif pct >= 0.25: strength = "Weak"
-    else:             strength = "Very Weak"
+    if pct >= 0.85:
+        strength = "Very Strong"
+    elif pct >= 0.65:
+        strength = "Strong"
+    elif pct >= 0.45:
+        strength = "Moderate"
+    elif pct >= 0.25:
+        strength = "Weak"
+    else:
+        strength = "Very Weak"
 
     entropy_bits = round(len(pw) * 6.55, 1)
 
@@ -378,10 +493,10 @@ def analyze_password(pw: str) -> dict:
     }
 
 
-# ─── Static files + root ───────────────────────────────────────────────────────
+# ─── Static files + root ───────────────
 
 _frontend_dist = Path(__file__).parent / "frontend" / "dist"
-_assets_dir    = _frontend_dist / "assets"
+_assets_dir = _frontend_dist / "assets"
 
 if _assets_dir.exists():
     app.mount("/assets", StaticFiles(directory=str(_assets_dir)), name="assets")
@@ -396,114 +511,134 @@ def root():
     fallback = Path(__file__).parent / "ui.html"
     if fallback.exists():
         return HTMLResponse(content=fallback.read_text())
-    return HTMLResponse(content="<p style='font-family:monospace;padding:2rem'>Frontend not built.<br>Run: <code>cd frontend && npm install && npm run build</code></p>")
+    return HTMLResponse(
+        content="<p style='font-family:monospace;padding:2rem'>Frontend not built.<br>Run: <code>cd frontend && npm install && npm run build</code></p>"
+    )
 
 
-# ─── Hashing ───────────────────────────────────────────────────────────────────
+# ─── Hashing ─────────────
+
 
 @app.get("/hash/algorithms", tags=["Hashing"])
 def list_algorithms():
-    return {"algorithms": HASH_ALGORITHMS}
+    return {"algorithms": sorted(HASH_ALGORITHMS)}
+
 
 @app.get("/hash/{algorithm}/{text}", tags=["Hashing"])
-def hash_text(algorithm: str, text: str):
-    algorithm = algorithm.lower()
-    if algorithm not in HASH_ALGORITHMS:
-        raise HTTPException(status_code=400, detail=f"Unsupported algorithm. Choose from: {HASH_ALGORITHMS}")
-    h = hashlib.new(algorithm, text.encode()).hexdigest()
-    return {"input": text, "algorithm": algorithm, "hash": h, "length_bits": len(h) * 4}
+def hash_text(
+    algorithm: str, text: str, request: Request, _rl: None = Depends(limit_util)
+):
+    algo = clean_hash_algo(algorithm)
+    safe_text = clean_text(text, field="text", max_len=10000)
+    h = hashlib.new(algo, safe_text.encode()).hexdigest()
+    return {"algorithm": algo, "hash": h, "length_bits": len(h) * 4}
+
 
 @app.post("/hash", tags=["Hashing"])
-def hash_text_body(body: HashRequest):
-    alg = body.algorithm.lower()
-    if alg not in HASH_ALGORITHMS:
-        raise HTTPException(status_code=400, detail=f"Unsupported algorithm: {alg}")
-    h = hashlib.new(alg, body.text.encode()).hexdigest()
-    return {"input_length": len(body.text), "algorithm": alg, "hash": h}
+def hash_text_body(
+    body: HashRequest, request: Request, _rl: None = Depends(limit_util)
+):
+    algo = clean_hash_algo(body.algorithm)
+    safe_text = clean_text(body.text, field="text", max_len=10000)
+    h = hashlib.new(algo, safe_text.encode()).hexdigest()
+    return {"algorithm": algo, "hash": h}
 
 
-# ─── Encoding ──────────────────────────────────────────────────────────────────
+# ─── Encoding ────────────
+
 
 @app.get("/encode/{method}/{text}", tags=["Encoding"])
-def encode_text(method: str, text: str):
-    method = method.lower()
-    if method == "base64":
-        result = base64.b64encode(text.encode()).decode()
-    elif method == "hex":
-        result = text.encode().hex()
-    elif method == "url":
-        import urllib.parse
-        result = urllib.parse.quote(text)
+def encode_text(
+    method: str, text: str, request: Request, _rl: None = Depends(limit_util)
+):
+    import urllib.parse
+
+    m = clean_encode_method(method)
+    t = clean_text(text, field="text", max_len=10000)
+    if m == "base64":
+        result = base64.b64encode(t.encode()).decode()
+    elif m == "hex":
+        result = t.encode().hex()
     else:
-        raise HTTPException(status_code=400, detail="Unsupported method. Use: base64, hex, url")
-    return {"input": text, "method": method, "encoded": result}
+        result = urllib.parse.quote(t)
+    return {"method": m, "encoded": result}
+
 
 @app.get("/decode/{method}/{encoded}", tags=["Encoding"])
-def decode_text(method: str, encoded: str):
-    method = method.lower()
+def decode_text(
+    method: str, encoded: str, request: Request, _rl: None = Depends(limit_util)
+):
+    import urllib.parse
+
+    m = clean_encode_method(method)
+    t = clean_text(encoded, field="encoded", max_len=10000)
     try:
-        if method == "base64":
-            result = base64.b64decode(encoded.encode()).decode()
-        elif method == "hex":
-            result = bytes.fromhex(encoded).decode()
-        elif method == "url":
-            import urllib.parse
-            result = urllib.parse.unquote(encoded)
+        if m == "base64":
+            result = base64.b64decode(t.encode()).decode()
+        elif m == "hex":
+            result = bytes.fromhex(t).decode()
         else:
-            raise HTTPException(status_code=400, detail="Unsupported method. Use: base64, hex, url")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Decoding failed: {str(e)}")
-    return {"encoded": encoded, "method": method, "decoded": result}
+            result = urllib.parse.unquote(t)
+    except Exception:
+        raise HTTPException(400, "Decoding failed — check input format.")
+    return {"method": m, "decoded": result}
+
 
 @app.post("/encode", tags=["Encoding"])
-def encode_text_body(body: EncodeRequest):
-    method = body.method.lower()
-    text   = body.text
-    if method == "base64":
-        result = base64.b64encode(text.encode()).decode()
-    elif method == "hex":
-        result = text.encode().hex()
-    elif method == "url":
-        import urllib.parse
-        result = urllib.parse.quote(text)
+def encode_text_body(
+    body: EncodeRequest, request: Request, _rl: None = Depends(limit_util)
+):
+    import urllib.parse
+
+    m = clean_encode_method(body.method)
+    t = clean_text(body.text, field="text", max_len=10000)
+    if m == "base64":
+        result = base64.b64encode(t.encode()).decode()
+    elif m == "hex":
+        result = t.encode().hex()
     else:
-        raise HTTPException(status_code=400, detail="Unsupported method.")
-    return {"method": method, "encoded": result}
+        result = urllib.parse.quote(t)
+    return {"method": m, "encoded": result}
 
 
-# ─── Network ───────────────────────────────────────────────────────────────────
+# ─── Network ───────────
+
 
 @app.get("/ip/{ip}", tags=["Network"])
-def ip_info(ip: str):
+def ip_info(ip: str, request: Request, _rl: None = Depends(limit_util)):
+    safe_ip = clean_ip(ip)
     try:
-        if ip == "me":
+        if safe_ip == "me":
             with urllib.request.urlopen("https://ipinfo.io/json", timeout=5) as res:
-                data = json.loads(res.read())
-            return data
-        addr = ipaddress.ip_address(ip)
-        info = {
-            "ip": str(addr), "version": addr.version,
-            "is_private": addr.is_private, "is_loopback": addr.is_loopback,
-            "is_multicast": addr.is_multicast, "is_global": addr.is_global,
-            "is_reserved": addr.is_reserved,
+                return json.loads(res.read())
+        addr = ipaddress.ip_address(safe_ip)
+        info: dict = {
+            "ip": str(addr),
+            "version": addr.version,
+            "is_private": addr.is_private,
+            "is_global": addr.is_global,
         }
         if not addr.is_private:
             try:
-                with urllib.request.urlopen(f"https://ipinfo.io/{ip}/json", timeout=5) as res:
+                with urllib.request.urlopen(
+                    f"https://ipinfo.io/{safe_ip}/json", timeout=5
+                ) as res:
                     geo = json.loads(res.read())
-                info.update({
-                    "org": geo.get("org"), "city": geo.get("city"),
-                    "region": geo.get("region"), "country": geo.get("country"),
-                    "timezone": geo.get("timezone"),
-                })
+                info.update(
+                    {
+                        k: geo.get(k)
+                        for k in ("org", "city", "region", "country", "timezone")
+                    }
+                )
             except Exception:
                 info["geo"] = "unavailable"
         return info
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid IP address.")
+    except Exception:
+        raise HTTPException(400, "Invalid IP address.")
 
 
-# ─── Utilities ─────────────────────────────────────────────────────────────────
+# ─── Utilities ────────────
+
 
 @app.get("/time", tags=["Utilities"])
 def current_time():
@@ -517,10 +652,12 @@ def current_time():
     }
 
 
-# ─── Password ──────────────────────────────────────────────────────────────────
+# ─── Password ──────────
+
 
 @app.post("/password/analyze", tags=["Password"])
-def analyze_password_endpoint(body: PasswordAnalysisRequest):
-    if not body.password:
-        raise HTTPException(status_code=400, detail="Password cannot be empty.")
-    return analyze_password(body.password)
+def analyze_password_endpoint(
+    body: PasswordAnalysisRequest, request: Request, _rl: None = Depends(limit_util)
+):
+    pw = clean_password(body.password)
+    return analyze_password(pw)
