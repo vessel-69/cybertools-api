@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 cli.py — CyberTools API CLI
 
@@ -19,7 +18,7 @@ import sys, json, os, urllib.request, urllib.parse, urllib.error
 
 BASE_URL = os.environ.get("CYBERTOOLS_URL", "http://localhost:8000").rstrip("/")
 
-# ── ANSI colors ────────────────────────────────────────────────────────────────
+# ── ANSI colors ───────────
 R  = "\033[0m"
 B  = "\033[1m"
 DIM= "\033[2m"
@@ -31,7 +30,7 @@ LM = "\033[38;5;118m"  # lime
 
 def _c(text, color): return f"{color}{text}{R}"
 
-# ── HTTP helpers ───────────────────────────────────────────────────────────────
+# ── HTTP helpers ───────────
 
 def _get(path):
     try:
@@ -57,7 +56,7 @@ def _post(path, body):
     except Exception as e:
         return {"error": str(e)}
 
-# ── Display helpers ────────────────────────────────────────────────────────────
+# ── Display helpers ────────────
 
 def _bar(label=""):
     w = 55
@@ -102,7 +101,7 @@ def _print_error(data):
         return True
     return False
 
-# ── Commands ───────────────────────────────────────────────────────────────────
+# ── Commands ─────────
 
 def cmd_recon(domain):
     _header(f"Recon › {domain}")
@@ -253,7 +252,7 @@ def cmd_ask(question):
         print(f"\n  {_c('tip:', DIM)} {d['tip']}")
     print()
 
-# ── Entry ──────────────────────────────────────────────────────────────────────
+# ── Entry ─────────
 
 USAGE = f"""
 {_c('⚡ CyberTools CLI', B)}  {_c('v2.0', DIM)}
