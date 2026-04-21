@@ -26,7 +26,7 @@
 
 ## 🎯 What is CyberTools?
 
-CyberTools is a `currently-under Production`  **reconnaissance and security analysis API** that brings enterprise-level security automation to bug bounty hunters and independent security researchers. Think of it as your personal security operations center, accessible anywhere.
+CyberTools is a **reconnaissance and security analysis API** that brings enterprise-level security automation to bug bounty hunters and independent security researchers. Think of it as your personal security operations center, accessible anywhere. `currently-under Production`
 
 ### Real-World Use Cases
 
