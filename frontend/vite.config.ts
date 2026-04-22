@@ -27,6 +27,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: "127.0.0.1",
     proxy: Object.fromEntries(
       API_ROUTES.map((route) => [
         route,
@@ -35,7 +36,7 @@ export default defineConfig({
     ),
   },
   build: {
-    outDir: "../frontend/dist",
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
