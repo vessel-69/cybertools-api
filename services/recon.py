@@ -9,8 +9,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
-
-# ── TTL Cache ──────
+# --- TTL Cache ---
 
 
 class _TTLCache:
@@ -48,7 +47,7 @@ def get_last_scan() -> dict:
     return _cache.get("__last__") or {}
 
 
-# ── Constants ──────────────
+# --- Constants ---
 
 SECURITY_HEADERS = [
     "strict-transport-security",
@@ -440,7 +439,7 @@ PAYLOADS = {
 }
 
 
-# ── HTTP Helpers ─────
+# --- HTTP Helpers ---
 
 
 def _make_request(url: str, timeout: int = 5):
@@ -520,7 +519,7 @@ def _probe_path(base: str, path: str, timeout: int = 3) -> dict:
     return {"path": path, "url": target, "status": "error", "size": 0}
 
 
-# ── DNS via Cloudflare DoH ──────
+# --- DNS via Cloudflare DoH ---
 
 
 def _dns_lookup(domain: str) -> dict:
@@ -563,7 +562,7 @@ def _dns_lookup(domain: str) -> dict:
     return results
 
 
-# ── Recon ─────────
+# --- Recon ---
 
 
 def recon_domain(domain: str) -> dict:
@@ -695,7 +694,7 @@ def recon_domain(domain: str) -> dict:
     return result
 
 
-# ── URL Analyzer ─────────
+# --- URL Analyzer ---
 
 
 def analyze_url(url: str) -> dict:
@@ -805,7 +804,7 @@ def analyze_url(url: str) -> dict:
     return result
 
 
-# ── BB Scan ────────
+# --- BB Scan ---
 
 
 def bb_scan(url: str) -> dict:
@@ -906,7 +905,7 @@ def bb_scan(url: str) -> dict:
     return result
 
 
-# ── Payload Generator ───────
+# --- Payload Generator ---
 
 
 def get_payloads(ptype: str, context: str = None) -> dict:
@@ -975,7 +974,7 @@ def get_payloads(ptype: str, context: str = None) -> dict:
     }
 
 
-# ── Expand Target ───────
+# --- Expand Target ---
 
 
 def expand_target(domain: str) -> dict:
@@ -1091,7 +1090,7 @@ def expand_target(domain: str) -> dict:
     return result
 
 
-# ── Find Endpoints ────────
+# --- Find Endpoints ---
 
 
 def find_endpoints(url: str) -> dict:
@@ -1107,7 +1106,9 @@ def find_endpoints(url: str) -> dict:
     all_results = []
 
     with ThreadPoolExecutor(max_workers=20) as pool:
-        futures = {pool.submit(_probe_path, base, path): path for path in ENDPOINT_PATHS}
+        futures = {
+            pool.submit(_probe_path, base, path): path for path in ENDPOINT_PATHS
+        }
         for f in as_completed(futures):
             r = f.result()
             all_results.append(r)
@@ -1183,7 +1184,7 @@ def find_endpoints(url: str) -> dict:
     return result
 
 
-# ── Find Params ────────
+# --- Find Params ---
 
 
 def find_params(url: str) -> dict:
@@ -1270,7 +1271,7 @@ def find_params(url: str) -> dict:
     return result
 
 
-# ── Workflow ───────
+# --- Workflow ---
 
 
 def run_workflow(target: str) -> dict:
@@ -1343,7 +1344,7 @@ def run_workflow(target: str) -> dict:
     return result
 
 
-# ── Chat Assist ────────────
+# --- Chat Assist ---
 
 
 def chat_assist(question: str, scan_result: dict = None) -> dict:
@@ -1505,7 +1506,7 @@ def chat_assist(question: str, scan_result: dict = None) -> dict:
     }
 
 
-# ── Workflow: Express ────────
+# --- Workflow: Express ---
 
 
 def run_workflow_express(target: str) -> dict:
@@ -1551,7 +1552,8 @@ def run_workflow_express(target: str) -> dict:
     return result
 
 
-# ── Workflow: Bug Bounty ────────
+# --- Workflow: Bug Bounty ---
+
 
 def run_workflow_bugbounty(target: str) -> dict:
     """Bug bounty: recon + bb-scan + recommend relevant payloads."""
@@ -1622,7 +1624,7 @@ def run_workflow_bugbounty(target: str) -> dict:
     return result
 
 
-# ── Workflow: Subdomains ─────────────
+# --- Workflow: Subdomains ---
 
 
 def run_workflow_subdomains(domain: str) -> dict:
@@ -1683,7 +1685,7 @@ def run_workflow_subdomains(domain: str) -> dict:
     return result
 
 
-# ── Workflow: API ─────────────
+# --- Workflow: API ---
 
 
 def run_workflow_api(url: str) -> dict:
@@ -1732,7 +1734,7 @@ def run_workflow_api(url: str) -> dict:
     return result
 
 
-# ── Cache utilities ─────────────
+# --- Cache utilities ---
 
 
 def get_cache_status() -> dict:
@@ -1759,4 +1761,3 @@ def clear_cache() -> dict:
         count = len(_cache._store)
         _cache._store.clear()
     return {"cleared": count, "message": f"Cleared {count} cache entries."}
-    

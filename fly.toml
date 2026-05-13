@@ -1,5 +1,5 @@
 app = "cybertools-api"
-primary_region = "sin"  # Singapore — closest to Nepal
+primary_region = "sin" 
 
 [build]
 

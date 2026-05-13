@@ -1,30 +1,21 @@
 <div align="center">
 
-```
- ██████╗██╗   ██╗██████╗ ███████╗██████╗ ████████╗ ██████╗  ██████╗ ██╗     ███████╗
-██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝
-██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝   ██║   ██║   ██║██║   ██║██║     ███████╗
-██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗   ██║   ██║   ██║██║   ██║██║     ╚════██║
-╚██████╗   ██║   ██████╔╝███████╗██║  ██║   ██║   ╚██████╔╝╚██████╔╝███████╗███████║
- ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝
-```
-
-# CyberTools API v2.0
+# CyberTools API v1.1.2
 
 **Security Intelligence Platform for Bug Bounty Hunters, Red Teamers & Developers**
 
-[![Python](https://img.shields.io/badge/Python-3.12-3776ab?style=flat-square&logo=python)](https://python.org)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-3776AB?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/CyberTools-vessel/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009485?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61dafb?style=flat-square&logo=react)](https://react.dev)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![Available on PyPI](https://img.shields.io/badge/Available%20on-PyPI-blue?style=flat-square&logo=python)](https://pypi.org/project/cybertools-vessel)
-[![Available on AUR](https://img.shields.io/badge/Available%20on-AUR-1C1E26?style=flat-square&logo=archlinux)](https://aur.archlinux.org/packages/cybertools-vessel)
+[![License](https://img.shields.io/badge/license-MIT-e63030?style=flat-square)](LICENSE)
+[![PyPI](https://img.shields.io/badge/pypi-v1.1.1-e63030?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/CyberTools-vessel/)
+[![AUR](https://img.shields.io/badge/AUR-CyberTools--vessel-1793D1?style=flat-square&logo=archlinux&logoColor=white)](https://aur.archlinux.org/packages/CyberTools-vessel)
 
 </div>
 
 ---
 
-## 🎯 What is CyberTools?
+## What is CyberTools?
 
 CyberTools is a **reconnaissance and security analysis API** that brings enterprise-level security automation to bug bounty hunters and independent security researchers. Think of it as your personal security operations center, accessible anywhere. `currently-under Production`
 
@@ -42,7 +33,7 @@ Bug Bounty Hunter                Red Team Operator           Security Developer
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 | Feature | Details |
 |---------|---------|
@@ -58,7 +49,7 @@ Bug Bounty Hunter                Red Team Operator           Security Developer
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ###  Local Development
 
@@ -83,7 +74,7 @@ npm run build       # build once → FastAPI serves it at localhost:8000
 npm run dev         # → http://localhost:5173 (proxies API to :8000)
 ```
 
-### 🖥 Use the Local CLI 
+### Use the Local CLI 
 
 ```bash
 python cli.py recon    example.com
@@ -95,14 +86,14 @@ python cli.py last
 python cli.py ask "What should I test first?"
 ```
 
-### 🌐 Use the Global CLI (1 minute)
+### Use the Global CLI (1 minute)
 
 ```bash
 # Install from PyPI
-pip install cybertools-vessel
+pipx install CyberTools-vessel
 
 # Or on Arch Linux
-yay -S cybertools-vessel
+yay -S CyberTools-vessel
 
 # Use anywhere
 cybtl                           # Interactive menu
@@ -112,7 +103,7 @@ cybtl workflow example.com --save report.json
 
 ---
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Security Operations (routes/security.py)
 
@@ -146,7 +137,7 @@ cybtl workflow example.com --save report.json
 
 ---
 
-## 🔒 Security Architecture
+## Security Architecture
 
 ### API Key Protection
 
@@ -164,17 +155,17 @@ cybtl workflow example.com --save report.json
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### From PyPI
 ```bash
-pip install cybertools-vessel
+pipx install CyberTools-vessel
 cybtl --help
 ```
 
 ### From AUR (Arch Linux)
 ```bash
-yay -S cybertools-vessel
+yay -S CyberTools-vessel
 cybtl recon example.com
 ```
 
@@ -189,7 +180,7 @@ uvicorn main:app --reload --port 8000
 
 ---
 
-## 🎮 Usage Examples
+## Usage Examples
 
 ### CLI (Global)
 ```bash
@@ -234,7 +225,7 @@ https://www.cyber-tools.dev
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
  Client (Web UI / CLI)
@@ -250,7 +241,7 @@ External AI and data providers
 
 ---
 
-## 📊 Performance
+## Performance
 
 | Operation | Typical Time | Limits |
 |-----------|--------------|--------|
@@ -264,20 +255,20 @@ Cached results available at `/last-scan` (TTL 1h).
 
 ---
 
-## 🛡️ Security Features
+## Security Features
 
-- ✅ SSRF blocker (blocks 169.254.x, 100.64.x, 10.x, 192.168.x, 127.x)
-- ✅ Input validation (allowlists, HTML strip, control char removal)
-- ✅ Rate limiting (per-IP, sliding window)
-- ✅ CORS locked (cyber-tools.dev + localhost only)
-- ✅ Security headers (HSTS, nosniff, X-Frame-Options DENY)
-- ✅ API key protection (server-side only, never frontend)
-- ✅ Error handling (no stack trace leaks)
-- ✅ HTTPS enforced (Certbot auto-renewal)
+- SSRF blocker (blocks 169.254.x, 100.64.x, 10.x, 192.168.x, 127.x)
+- Input validation (allowlists, HTML strip, control char removal)
+- Rate limiting (per-IP, sliding window)
+- CORS locked (cyber-tools.dev + localhost only)
+- Security headers (HSTS, nosniff, X-Frame-Options DENY)
+- API key protection (server-side only, never frontend)
+- Error handling (no stack trace leaks)
+- HTTPS enforced (Certbot auto-renewal)
 
 ---
 
-## 🎯 Why CyberTools?
+## Why CyberTools?
 
 1. **Unified Platform** — 17+ endpoints, one place to start reconnaissance
 2. **Zero Cost** — Free OpenRouter models (Gemma, Llama, DeepSeek)
@@ -289,7 +280,7 @@ Cached results available at `/last-scan` (TTL 1h).
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 - Found a bug?
 - Have a feature idea?
@@ -299,24 +290,24 @@ Cached results available at `/last-scan` (TTL 1h).
 
 ---
 
-## 📄 License
+## License
 
 MIT License — See [LICENSE](./LICENSE)
 
 ---
 
-## 🚀 Get Started
+## Get Started
 
 1. **Local Deployment**
 2. **Locally:** `uvicorn main:app --reload --port 8000`
 3. **Local CLI** `python cli.py`
-4. **Global CLI:** `pip install cybertools-vessel && cybtl`
+4. **Global CLI:** `pipx install CyberTools-vessel && cybtl`
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by vessel-69**
+**Made with <3 by vessel-69**
 
 [🌐 Live API](https://www.cyber-tools.dev) · [📚 Docs](https://www.cyber-tools.dev/docs) · [🔧 GitHub](https://github.com/vessel-69/cybertools-api)
 

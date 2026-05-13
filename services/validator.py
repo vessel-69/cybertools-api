@@ -2,14 +2,19 @@ import re
 import ipaddress
 from fastapi import HTTPException
 
-MAX_TEXT_LEN   = 500
+MAX_TEXT_LEN = 500
 MAX_DOMAIN_LEN = 253
-MAX_URL_LEN    = 2048
+MAX_URL_LEN = 2048
 
 _BLOCKED_HOSTS = {
-    "localhost", "127.0.0.1", "::1", "0.0.0.0",
-    "metadata.google.internal", "169.254.169.254",
-    "100.100.100.200", "100.64.0.1",
+    "localhost",
+    "127.0.0.1",
+    "::1",
+    "0.0.0.0",
+    "metadata.google.internal",
+    "169.254.169.254",
+    "100.100.100.200",
+    "100.64.0.1",
 }
 
 _PRIVATE_RANGES = [
@@ -23,13 +28,23 @@ _PRIVATE_RANGES = [
     ipaddress.ip_network("fc00::/7"),
 ]
 
-_VALID_PAYLOAD_TYPES  = {"xss", "sqli", "lfi", "ssrf", "open_redirect", "idor"}
-_VALID_HASH_ALGOS     = {"md5","sha1","sha256","sha384","sha512","sha3_256","sha3_512","blake2b","blake2s"}
+_VALID_PAYLOAD_TYPES = {"xss", "sqli", "lfi", "ssrf", "open_redirect", "idor"}
+_VALID_HASH_ALGOS = {
+    "md5",
+    "sha1",
+    "sha256",
+    "sha384",
+    "sha512",
+    "sha3_256",
+    "sha3_512",
+    "blake2b",
+    "blake2s",
+}
 _VALID_ENCODE_METHODS = {"base64", "hex", "url"}
 
-_LABEL_RE      = re.compile(r"^(?!-)[a-zA-Z0-9\-]{1,63}(?<!-)$")
+_LABEL_RE = re.compile(r"^(?!-)[a-zA-Z0-9\-]{1,63}(?<!-)$")
 _CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-_HTML_RE       = re.compile(r"<[^>]{0,200}>")
+_HTML_RE = re.compile(r"<[^>]{0,200}>")
 
 
 def _reject(field: str, reason: str):

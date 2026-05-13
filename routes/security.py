@@ -1,18 +1,23 @@
-"""
-routes/security.py — all security endpoints.
-Logic lives in services/recon.py.
-"""
-
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional
 from services.recon import (
-    recon_domain, analyze_url, bb_scan, get_payloads,
-    run_workflow, chat_assist, get_last_scan,
-    expand_target, find_endpoints, find_params,
-    run_workflow_express, run_workflow_bugbounty,
-    run_workflow_subdomains, run_workflow_api,
-    get_cache_status, clear_cache,
+    recon_domain,
+    analyze_url,
+    bb_scan,
+    get_payloads,
+    run_workflow,
+    chat_assist,
+    get_last_scan,
+    expand_target,
+    find_endpoints,
+    find_params,
+    run_workflow_express,
+    run_workflow_bugbounty,
+    run_workflow_subdomains,
+    run_workflow_api,
+    get_cache_status,
+    clear_cache,
 )
 
 router = APIRouter(tags=["Security"])
@@ -23,7 +28,8 @@ class ChatRequest(BaseModel):
     scan_result: Optional[dict] = None
 
 
-# ── Core endpoints ────────────────────────────────────────────────────────────
+# --- Core endpoints ---
+
 
 @router.get("/recon")
 def recon(domain: str = Query(..., description="Domain to recon, e.g. example.com")):
@@ -37,7 +43,9 @@ def recon(domain: str = Query(..., description="Domain to recon, e.g. example.co
 
 
 @router.get("/analyze-url")
-def analyze(url: str = Query(..., description="URL to analyze, e.g. https://example.com")):
+def analyze(
+    url: str = Query(..., description="URL to analyze, e.g. https://example.com")
+):
     """Follow redirects, detect header misconfigs. Cached 5min."""
     if not url:
         raise HTTPException(400, "url is required.")
@@ -54,7 +62,9 @@ def bounty_scan(url: str = Query(..., description="Target URL for bug bounty rec
 
 @router.get("/payloads")
 def payloads(
-    type: str = Query(..., description="xss | sqli | lfi | ssrf | open_redirect | idor"),
+    type: str = Query(
+        ..., description="xss | sqli | lfi | ssrf | open_redirect | idor"
+    ),
     context: Optional[str] = Query(None, description="Filter by injection context"),
 ):
     """Categorized payloads with labels and context tags."""
@@ -81,7 +91,9 @@ def endpoints(url: str = Query(..., description="Target URL to enumerate endpoin
 
 
 @router.get("/params")
-def params(url: str = Query(..., description="Target URL to probe for injectable parameters")):
+def params(
+    url: str = Query(..., description="Target URL to probe for injectable parameters")
+):
     """Probe 26 common params. Flags those producing different responses. Cached 5min."""
     if not url:
         raise HTTPException(400, "url is required.")
@@ -106,7 +118,9 @@ def last_scan():
     """Returns most recent scan result from memory (TTL 1h)."""
     data = get_last_scan()
     if not data:
-        raise HTTPException(404, "No scan results yet. Run /recon, /bb-scan, or /workflow first.")
+        raise HTTPException(
+            404, "No scan results yet. Run /recon, /bb-scan, or /workflow first."
+        )
     return data
 
 
@@ -118,7 +132,8 @@ def chat(body: ChatRequest):
     return chat_assist(body.question, body.scan_result)
 
 
-# ── Workflow variants ─────────────────────────────────────────────────────────
+# --- Workflow variants ---
+
 
 @router.get("/workflows/express", tags=["Workflows"])
 def workflow_express(target: str = Query(..., description="Domain or URL")):

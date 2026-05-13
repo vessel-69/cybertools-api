@@ -1,4 +1,3 @@
-# ── Stage 1: Build React frontend ─────────────────────────────────────────────
 FROM node:20-slim AS frontend-builder
 
 WORKDIR /app/frontend
@@ -9,7 +8,6 @@ RUN npm install
 COPY frontend/ ./
 RUN npm run build
 
-# ── Stage 2: Python API ────────────────────────────────────────────────────────
 FROM python:3.12-slim-bookworm
 
 WORKDIR /app

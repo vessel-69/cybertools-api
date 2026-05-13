@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+*.backup.env
 
 # Python
 __pycache__/
@@ -58,6 +59,5 @@ tmp/
 temp/
 .cache/
 *.bak
-*.backup.env
-.env.*
-!.env.example
+
+

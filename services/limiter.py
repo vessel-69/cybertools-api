@@ -7,10 +7,10 @@ from fastapi import HTTPException, Request
 class _SlidingWindow:
     def __init__(self):
         self._store: dict[str, deque] = {}
-        self._lock  = threading.Lock()
+        self._lock = threading.Lock()
 
     def check(self, key: str, max_req: int, window: int) -> tuple[bool, int]:
-        now    = time.monotonic()
+        now = time.monotonic()
         cutoff = now - window
         with self._lock:
             if key not in self._store:
@@ -27,8 +27,7 @@ class _SlidingWindow:
     def purge(self, older_than: int = 120):
         cutoff = time.monotonic() - older_than
         with self._lock:
-            stale = [k for k, dq in self._store.items()
-                     if not dq or dq[-1] < cutoff]
+            stale = [k for k, dq in self._store.items() if not dq or dq[-1] < cutoff]
             for k in stale:
                 del self._store[k]
 
@@ -40,7 +39,7 @@ def _ip(request: Request) -> str:
     xff = request.headers.get("X-Forwarded-For", "")
     if xff:
         return xff.split(",")[0].strip()
-    return (request.client.host if request.client else "unknown")
+    return request.client.host if request.client else "unknown"
 
 
 def _limiter(max_req: int, window: int = 60):
@@ -53,11 +52,12 @@ def _limiter(max_req: int, window: int = 60):
                 detail=f"Rate limit exceeded — retry in {retry}s.",
                 headers={"Retry-After": str(retry)},
             )
+
     return _dep
 
 
-limit_recon    = _limiter(30)
+limit_recon = _limiter(30)
 limit_workflow = _limiter(10)
 limit_payloads = _limiter(60)
-limit_chat     = _limiter(20)
-limit_util     = _limiter(120)
+limit_chat = _limiter(20)
+limit_util = _limiter(120)

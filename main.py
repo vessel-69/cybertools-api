@@ -44,7 +44,7 @@ OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 if not OPENROUTER_API_KEY:
     logger.warning("OPENROUTER_API_KEY not set — AI chat will return 503.")
 
-# ─── Allowed origins for CORS ─────────────────────────────────────────────────
+# --- Allowed origins for CORS ---
 
 _ALLOWED_ORIGINS = [
     "https://www.cyber-tools.dev",
@@ -56,11 +56,12 @@ _ALLOWED_ORIGINS = [
 app = FastAPI(
     title="CyberTools API",
     description="A versatile FastAPI-powered toolkit for security operators, red teamers, bug-bounty hunters, pentesters, and developers.",
-    version="2.0",
+    version="1.1.2",
     docs_url=None,
 )
 
-# ─── CORS ─────────────────────────────────────────────────────────────────────
+# --- CORS ---
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
@@ -70,7 +71,8 @@ app.add_middleware(
 )
 
 
-# ─── Security headers middleware ───────────────────────────────────────────────
+# --- Security headers middleware ---
+
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -88,7 +90,8 @@ async def security_headers(request: Request, call_next):
     return response
 
 
-# ─── Global exception handler — never leak stack traces ───────────────────────
+# --- Global exception handler ---
+
 @app.exception_handler(Exception)
 async def generic_error_handler(request: Request, exc: Exception):
     if isinstance(exc, HTTPException):
@@ -281,9 +284,7 @@ def custom_docs():
     return HTMLResponse(content=_SWAGGER_HTML)
 
 
-# ─── AI Chat Proxy ──────────────────
-
-
+# --- AI Chat Proxy ---
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -351,10 +352,9 @@ def ai_chat(body: ChatRequest, request: Request, _rl: None = Depends(limit_chat)
     for m in body.messages:
         if m.role not in {"user", "assistant", "system"}:
             raise HTTPException(400, "invalid chat role.")
-        cleaned_messages.append({
-            "role": m.role,
-            "content": clean_text(m.content, field="message")
-        })
+        cleaned_messages.append(
+            {"role": m.role, "content": clean_text(m.content, field="message")}
+        )
 
     system = clean_text(system, field="system", max_len=4000)
 
@@ -397,9 +397,7 @@ def ai_chat(body: ChatRequest, request: Request, _rl: None = Depends(limit_chat)
         raise HTTPException(500, str(e))
 
 
-# ─── Models ────────────
-
-
+# --- Models ---
 class HashRequest(BaseModel):
     text: str
     algorithm: str = "sha256"
@@ -414,7 +412,7 @@ class PasswordAnalysisRequest(BaseModel):
     password: str
 
 
-# ─── Helpers ─────────────
+# --- Helpers ---
 
 HASH_ALGORITHMS = [
     "md5",
@@ -506,7 +504,7 @@ def analyze_password(pw: str) -> dict:
     }
 
 
-# ─── Static files + root ───────────────
+# --- Static files + root ---
 
 _frontend_dist = Path(__file__).parent / "frontend" / "dist"
 _assets_dir = _frontend_dist / "assets"
@@ -529,8 +527,7 @@ def root():
     )
 
 
-# ─── Hashing ─────────────
-
+# --- Hashing ---
 
 @app.get("/hash/algorithms", tags=["Hashing"])
 def list_algorithms():
@@ -557,8 +554,7 @@ def hash_text_body(
     return {"algorithm": algo, "hash": h}
 
 
-# ─── Encoding ────────────
-
+# --- Encoding ---
 
 @app.get("/encode/{method}/{text}", tags=["Encoding"])
 def encode_text(
@@ -614,8 +610,7 @@ def encode_text_body(
     return {"method": m, "encoded": result}
 
 
-# ─── Network ───────────
-
+# --- Network ---
 
 @app.get("/ip/{ip}", tags=["Network"])
 def ip_info(ip: str, request: Request, _rl: None = Depends(limit_util)):
@@ -650,8 +645,7 @@ def ip_info(ip: str, request: Request, _rl: None = Depends(limit_util)):
         raise HTTPException(400, "Invalid IP address.")
 
 
-# ─── Utilities ────────────
-
+# --- Utilities ---
 
 @app.get("/time", tags=["Utilities"])
 def current_time():
@@ -665,8 +659,7 @@ def current_time():
     }
 
 
-# ─── Password ──────────
-
+# --- Password ---
 
 @app.post("/password/analyze", tags=["Password"])
 def analyze_password_endpoint(
